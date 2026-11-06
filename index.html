@@ -5,7 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QuickTools — Free Online Tools (No Sign-Up, No Uploads)</title>
 <meta name="description" content="38 free online tools that run 100% in your browser: a full PDF suite (merge, split, rotate, organize, compress, sign, watermark, edit and more), image and video tools, finance calculators, text and developer tools, typing test and timers. No sign-up, no uploads — your files never leave your device.">
+<link rel="canonical" href="https://getquicktools.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="QuickTools — Free Online Tools (No Sign-Up, No Uploads)">
+<meta property="og:description" content="38 free tools in one place: PDFs, images, video, finance calculators and more. Everything runs in your browser — your files never leave your device.">
+<meta property="og:url" content="https://getquicktools.github.io/">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"QuickTools","url":"https://getquicktools.github.io/","description":"38 free online tools that run 100% in your browser — no sign-up, no uploads."}
+</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-KXBVGH7DLK"></script>
 <script>
@@ -14,6 +23,61 @@
   gtag('js', new Date());
   gtag('config', 'G-KXBVGH7DLK');
 </script>
+<style>
+/* Homepage-only styles (scoped with .home / .hp- so tool pages are untouched). */
+body.home .site-header{box-shadow:0 1px 0 rgba(15,23,42,.06)}
+.hp-hero{background:linear-gradient(120deg,#f97316 0%,#ec4899 52%,#8b5cf6 100%);color:#fff;border-radius:0 0 28px 28px;padding:56px 16px 44px;text-align:center}
+.hp-hero .badge{display:inline-block;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 14px;font-size:.88rem;font-weight:600;margin-bottom:18px}
+.hp-hero h1{font-size:2.4rem;margin:0 auto 14px;max-width:720px;color:#fff}
+.hp-hero p{color:#ffe4ef;font-size:1.12rem;max-width:660px;margin:0 auto 22px}
+.hp-search{max-width:560px;margin:0 auto;display:flex;gap:8px;background:#fff;border-radius:999px;padding:6px 6px 6px 18px;box-shadow:0 12px 30px rgba(15,23,42,.28)}
+.hp-search input{flex:1;border:0;outline:0;font:inherit;font-size:1rem;color:#0f172a;background:transparent;min-width:0}
+.hp-search button{border:0;border-radius:999px;background:linear-gradient(120deg,#ec4899,#8b5cf6);color:#fff;font:inherit;font-weight:700;padding:10px 20px;cursor:pointer;white-space:nowrap}
+.hp-search button:hover{filter:brightness(1.08)}
+.hp-chips{margin:16px auto 0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:640px}
+.hp-chips a{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:5px 13px;font-size:.88rem}
+.hp-chips a:hover{background:rgba(255,255,255,.28);text-decoration:none}
+.hp-stats{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:26px auto 0;max-width:760px}
+.hp-stats span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:8px 14px;font-size:.92rem;font-weight:600}
+.hp-stats b{color:#fff}
+.hp-count{color:#64748b;font-size:.95rem;margin:18px 0 0;text-align:center}
+.hp-count:empty{display:none}
+.hp-noresults{display:none;text-align:center;color:#64748b;padding:26px 0 6px}
+.hp-noresults button{margin-top:10px}
+.cat-nav{display:flex;gap:8px;overflow-x:auto;padding:18px 2px 4px;scrollbar-width:thin}
+.cat-nav a{flex:0 0 auto;background:#fff;border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:.92rem;color:#374151;font-weight:600}
+.cat-nav a:hover{border-color:#ec4899;background:#fdf2f8;text-decoration:none}
+body.home h2.cat-title{margin:30px 0 0;font-size:1.4rem;scroll-margin-top:70px}
+body.home .tool-grid{padding-top:14px}
+.hp-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:22px 0 6px}
+.hp-step{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}
+.hp-step .num{display:inline-block;background:linear-gradient(120deg,#ec4899,#8b5cf6);color:#fff;font-weight:800;border-radius:999px;padding:2px 11px;margin-bottom:8px}
+.hp-step h3{margin:0 0 4px;font-size:1.05rem}
+.hp-step p{margin:0;color:var(--muted);font-size:.94rem}
+.hp-popular .tool-card{border:none;box-shadow:0 10px 24px rgba(124,58,237,.10)}
+.hp-popular .tool-card:nth-child(1){background:#d9f7ee}
+.hp-popular .tool-card:nth-child(2){background:#fef3c7}
+.hp-popular .tool-card:nth-child(3){background:#ede9fe}
+.hp-popular .tool-card:nth-child(4){background:#ffe4d6}
+.hp-popular .tool-card:nth-child(5){background:#e0f2fe}
+.hp-popular .tool-card:nth-child(6){background:#ffe4ec}
+.hp-popular .tool-card .icon{background:rgba(255,255,255,.65)}
+#pdf + .tool-grid{--cat:#f97316}
+#image + .tool-grid{--cat:#ec4899}
+#video + .tool-grid{--cat:#8b5cf6}
+#finance + .tool-grid{--cat:#f59e0b}
+#text + .tool-grid{--cat:#06b6d4}
+#tests + .tool-grid{--cat:#22c55e}
+#developer + .tool-grid{--cat:#6366f1}
+#calculators + .tool-grid{--cat:#ef4444}
+#guides + .tool-grid{--cat:#a855f7}
+@media (max-width:640px){
+  .hp-hero{padding:40px 14px 34px;border-radius:0 0 18px 18px}
+  .hp-hero h1{font-size:1.75rem}
+  .hp-hero p{font-size:1rem}
+  .hp-search button{padding:10px 14px}
+}
+</style>
 </head>
 <body class="home">
 <header class="site-header">
@@ -25,83 +89,100 @@
       <a href="merge-pdf.html">Merge PDF</a>
       <a href="qr-code-generator.html">QR Generator</a>
       <a href="password-generator.html">Password Generator</a>
+      <a href="guides.html">Guides</a>
     </nav>
   </div>
 </header>
 
-<section class="home-hero">
+<section class="hp-hero">
   <div class="container">
     <span class="badge">🔒 100% private — everything runs in your browser</span>
     <h1>Free Online Tools — no sign-up, no uploads, everything runs in your browser</h1>
     <p>38 free tools in one place: work with PDFs and images, compress video, convert currencies, format JSON and much more. Every tool works instantly on your own device — your files are never sent to a server.</p>
-    <div class="search-wrap">
-      <input type="text" id="toolSearch" placeholder="🔍 Search 38 tools… try “merge”, “currency” or “qr”" autocomplete="off" aria-label="Search tools">
-      <p class="search-status" id="searchStatus"></p>
+    <div class="hp-search" role="search">
+      <input id="tool-search" type="text" placeholder="Search 38 tools — try “merge pdf”, “qr code”, “loan”…" autocomplete="off" aria-label="Search tools">
+      <button type="button" id="tool-search-btn">Search</button>
     </div>
-    <nav class="chip-row" aria-label="Tool categories">
-      <a class="chip" href="#pdf-tools">📄 PDF Tools</a>
-      <a class="chip" href="#image-tools">🖼️ Image</a>
-      <a class="chip" href="#video-tools">🎬 Video</a>
-      <a class="chip" href="#finance">💱 Finance</a>
-      <a class="chip" href="#text-tools">📝 Text &amp; QR</a>
-      <a class="chip" href="#timers">⏱️ Tests &amp; Timers</a>
-      <a class="chip" href="#dev-tools">🧩 Developer</a>
-      <a class="chip" href="#calculators">🧮 Calculators</a>
-      <a class="chip" href="#guides">📚 Guides</a>
-    </nav>
+    <div class="hp-chips">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="image-compressor.html">Compress Image</a>
+      <a href="qr-code-generator.html">QR Code</a>
+      <a href="currency-converter.html">Currency</a>
+      <a href="password-generator.html">Password</a>
+    </div>
+    <div class="hp-stats">
+      <span><b>38</b> free tools</span>
+      <span><b>£0 / $0</b> — no premium tier</span>
+      <span><b>0</b> uploads, <b>0</b> sign-ups</span>
+      <span>Works on phone &amp; desktop</span>
+    </div>
   </div>
 </section>
 
 <main class="container">
-
-  <div class="trust-row">
-    <div class="trust-item"><span class="trust-icon">✅</span><div><strong>Completely free</strong><span>No limits, no watermarks</span></div></div>
-    <div class="trust-item"><span class="trust-icon">🔒</span><div><strong>Files stay private</strong><span>Nothing is uploaded, ever</span></div></div>
-    <div class="trust-item"><span class="trust-icon">⚡</span><div><strong>Instant results</strong><span>No sign-up, no waiting</span></div></div>
-    <div class="trust-item"><span class="trust-icon">📱</span><div><strong>Any device</strong><span>Phone, tablet or computer</span></div></div>
+  <p class="hp-count" id="tool-count" aria-live="polite"></p>
+  <div class="hp-noresults" id="no-results">
+    <strong>No tool matches that search.</strong><br>
+    Try a shorter word — for example “pdf”, “image”, “loan” or “qr”.
+    <br><button class="btn btn-secondary" type="button" id="clear-search">Show all tools</button>
   </div>
 
-  <div class="cat" style="--cat:#f59e0b" id="popular">
-    <h2 class="cat-title"><span class="dot"></span>⭐ Most Popular</h2>
-    <section class="tool-grid">
-      <a class="tool-card" href="merge-pdf.html">
-        <div class="icon">📄</div>
-        <h3>Merge PDF</h3>
-        <p>Combine multiple PDF files into a single document, in the exact order you choose.</p>
-      </a>
-      <a class="tool-card" href="compress-pdf.html">
-        <div class="icon">📉</div>
-        <h3>Compress PDF</h3>
-        <p>Shrink a PDF by re-rendering pages as images at the quality you choose.</p>
-      </a>
-      <a class="tool-card" href="remove-background.html">
-        <div class="icon">✂️</div>
-        <h3>Background Remover</h3>
-        <p>Remove a photo's background with on-device AI and download a transparent PNG.</p>
-      </a>
-      <a class="tool-card" href="image-compressor.html">
-        <div class="icon">🗜️</div>
-        <h3>Image Compressor</h3>
-        <p>Shrink JPG, PNG and WebP images with a quality slider and see exactly how much space you save.</p>
-      </a>
-      <a class="tool-card" href="currency-converter.html">
-        <div class="icon">💱</div>
-        <h3>Currency Converter</h3>
-        <p>Convert between 33 world currencies at live exchange rates, including USD, PKR, INR and AED.</p>
-      </a>
-      <a class="tool-card" href="qr-code-generator.html">
-        <div class="icon">📱</div>
-        <h3>QR Code Generator</h3>
-        <p>Turn any text or link into a QR code and download it as a crisp PNG at up to 1024px.</p>
-      </a>
-    </section>
-  </div>
+  <nav class="cat-nav" aria-label="Tool categories">
+    <a href="#popular">⭐ Most popular</a>
+    <a href="#pdf">📄 PDF Tools</a>
+    <a href="#image">🖼️ Image Tools</a>
+    <a href="#video">🎬 Video</a>
+    <a href="#finance">💱 Finance</a>
+    <a href="#text">🔤 Text &amp; QR</a>
+    <a href="#tests">⏱️ Tests &amp; Timers</a>
+    <a href="#developer">🧩 Developer</a>
+    <a href="#calculators">🧮 Calculators</a>
+    <a href="#guides">📚 Guides</a>
+  </nav>
 
-  <p class="no-results" id="noResults" hidden>No tool matches your search. Try “pdf”, “image” or “calculator”.</p>
+  <h2 class="cat-title" id="popular">⭐ Most popular</h2>
+  <section class="tool-grid hp-popular" style="padding-top:14px">
+    <a class="tool-card" href="merge-pdf.html">
+      <div class="icon">📄</div>
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into a single document, in the exact order you choose.</p>
+    </a>
+    <a class="tool-card" href="image-compressor.html">
+      <div class="icon">🗜️</div>
+      <h3>Image Compressor</h3>
+      <p>Shrink JPG, PNG and WebP images with a quality slider and see exactly how much space you save.</p>
+    </a>
+    <a class="tool-card" href="compress-pdf.html">
+      <div class="icon">📉</div>
+      <h3>Compress PDF</h3>
+      <p>Shrink a PDF by re-rendering pages as images at the quality you choose.</p>
+    </a>
+    <a class="tool-card" href="qr-code-generator.html">
+      <div class="icon">📱</div>
+      <h3>QR Code Generator</h3>
+      <p>Turn any text or link into a QR code and download it as a crisp PNG at up to 1024px.</p>
+    </a>
+    <a class="tool-card" href="currency-converter.html">
+      <div class="icon">💱</div>
+      <h3>Currency Converter</h3>
+      <p>Convert between 33 world currencies at live exchange rates, including USD, PKR, INR and AED.</p>
+    </a>
+    <a class="tool-card" href="word-counter.html">
+      <div class="icon">📝</div>
+      <h3>Word Counter</h3>
+      <p>Count words, characters, sentences and reading time live, and find your most-used words.</p>
+    </a>
+  </section>
 
-  <div class="cat" style="--cat:#2563eb" id="pdf-tools">
-    <h2 class="cat-title"><span class="dot"></span>PDF Tools <span class="cat-count">13 tools</span></h2>
-    <section class="tool-grid">
+  <section class="hp-steps" aria-label="How it works">
+    <div class="hp-step"><span class="num">1</span><h3>Pick a tool</h3><p>Search above or browse by category — every tool opens instantly, no install.</p></div>
+    <div class="hp-step"><span class="num">2</span><h3>Do it in your browser</h3><p>Your file is processed on your own device. Nothing is uploaded to any server.</p></div>
+    <div class="hp-step"><span class="num">3</span><h3>Download the result</h3><p>Save the finished file and go — no account, no email, no watermark.</p></div>
+  </section>
+
+  <h2 class="cat-title" id="pdf">PDF Tools</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="merge-pdf.html">
       <div class="icon">📄</div>
       <h3>Merge PDF</h3>
@@ -167,12 +248,10 @@
       <h3>PDF to Text</h3>
       <p>Extract all the text from a PDF to copy, or download it as a .txt file.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#7c3aed" id="image-tools">
-    <h2 class="cat-title"><span class="dot"></span>Image Tools <span class="cat-count">4 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="image">Image Tools</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="image-compressor.html">
       <div class="icon">🗜️</div>
       <h3>Image Compressor</h3>
@@ -193,23 +272,19 @@
       <h3>Background Remover</h3>
       <p>Remove a photo's background with on-device AI and download a transparent PNG.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#db2777" id="video-tools">
-    <h2 class="cat-title"><span class="dot"></span>Video Tools <span class="cat-count">1 tool</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="video">Video Tools</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="video-compressor.html">
       <div class="icon">🎬</div>
       <h3>Video Compressor</h3>
       <p>Shrink videos to MP4 at 720p, 480p or 360p with ffmpeg in your browser — nothing is uploaded.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#059669" id="finance">
-    <h2 class="cat-title"><span class="dot"></span>Finance Calculators <span class="cat-count">4 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="finance">Finance Calculators</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="currency-converter.html">
       <div class="icon">💱</div>
       <h3>Currency Converter</h3>
@@ -230,12 +305,10 @@
       <h3>Tip Calculator</h3>
       <p>Work out the tip and split any restaurant bill fairly between friends.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#d97706" id="text-tools">
-    <h2 class="cat-title"><span class="dot"></span>Text, Voice, QR &amp; Password <span class="cat-count">5 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="text">Text, Voice, QR &amp; Password</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="word-counter.html">
       <div class="icon">📝</div>
       <h3>Word Counter</h3>
@@ -261,12 +334,10 @@
       <h3>Password Generator</h3>
       <p>Create strong, random passwords up to 64 characters with a built-in strength meter.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#0891b2" id="timers">
-    <h2 class="cat-title"><span class="dot"></span>Tests &amp; Timers <span class="cat-count">2 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="tests">Tests &amp; Timers</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="typing-test.html">
       <div class="icon">⌨️</div>
       <h3>Typing Test</h3>
@@ -277,12 +348,10 @@
       <h3>Stopwatch &amp; Timer</h3>
       <p>A precise stopwatch with laps, plus a countdown timer that beeps at zero.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#475569" id="dev-tools">
-    <h2 class="cat-title"><span class="dot"></span>Developer Tools <span class="cat-count">3 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="developer">Developer Tools</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="json-formatter.html">
       <div class="icon">🧩</div>
       <h3>JSON Formatter</h3>
@@ -298,12 +367,10 @@
       <h3>Color Converter</h3>
       <p>Get HEX, RGB, HSL and HSV values for any color, plus matching shades and tints.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <div class="cat" style="--cat:#dc2626" id="calculators">
-    <h2 class="cat-title"><span class="dot"></span>Calculators &amp; Converters <span class="cat-count">6 tools</span></h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="calculators">Calculators &amp; Converters</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="age-calculator.html">
       <div class="icon">🎂</div>
       <h3>Age Calculator</h3>
@@ -334,10 +401,9 @@
       <h3>Unit Converter</h3>
       <p>Convert length, weight and temperature units — metres to miles, kilos to pounds, °C to °F.</p>
     </a>
-    </section>
-  </div>
+  </section>
 
-  <section class="section faq">
+  <section class="section faq" id="faq">
     <h2>Frequently asked questions</h2>
     <h3>Are these tools really free?</h3>
     <p>Yes. Every tool on QuickTools is completely free to use, with no limits, no watermarks and no premium tier. Use them as often as you like, for personal or commercial projects.</p>
@@ -349,9 +415,8 @@
     <p>Yes. QuickTools is fully responsive and works in any modern browser on phones, tablets and computers. A few heavy tools — the background remover and video compressor run AI and video engines on your device — work best on a desktop.</p>
   </section>
 
-  <div class="cat" style="--cat:#4f46e5" id="guides">
-    <h2 class="cat-title"><span class="dot"></span>Guides &amp; How-Tos</h2>
-    <section class="tool-grid">
+  <h2 class="cat-title" id="guides">Guides &amp; How-Tos</h2>
+  <section class="tool-grid" style="padding-top:14px">
     <a class="tool-card" href="how-to-merge-pdf.html">
       <div class="icon">📄</div>
       <h3>How to Merge PDF Files</h3>
@@ -372,8 +437,7 @@
       <h3>All 38 Guides</h3>
       <p>Browse every step-by-step guide in one place — one for each tool.</p>
     </a>
-    </section>
-  </div>
+  </section>
 </main>
 
 <footer class="site-footer">
@@ -384,40 +448,54 @@
 </footer>
 <script src="script.js"></script>
 <script>
-/* Homepage tool search: filter cards live, hide empty categories. */
+/* Homepage live search: filters every .tool-card by name + description,
+   hides empty category sections, and hides Most Popular while searching. */
 (function () {
   "use strict";
-  var input = document.getElementById("toolSearch");
-  var status = document.getElementById("searchStatus");
-  var noResults = document.getElementById("noResults");
+  var input = document.getElementById("tool-search");
+  var btn = document.getElementById("tool-search-btn");
+  var countEl = document.getElementById("tool-count");
+  var noResults = document.getElementById("no-results");
+  var clearBtn = document.getElementById("clear-search");
   if (!input) return;
-  var cats = Array.prototype.slice.call(document.querySelectorAll(".cat"));
-  var popular = document.getElementById("popular");
-  function apply() {
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".tool-card"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("main .tool-grid"));
+  var titles = Array.prototype.slice.call(document.querySelectorAll("main h2.cat-title"));
+  var steps = document.querySelector(".hp-steps");
+  var popularTitle = document.getElementById("popular");
+  function run() {
     var q = input.value.trim().toLowerCase();
-    var shown = 0;
-    cats.forEach(function (cat) {
-      var cards = cat.querySelectorAll(".tool-card");
-      var visible = 0;
-      cards.forEach(function (card) {
-        var hit = !q || card.textContent.toLowerCase().indexOf(q) !== -1;
-        card.style.display = hit ? "" : "none";
-        if (hit) visible++;
-      });
-      cat.style.display = visible ? "" : "none";
-      shown += visible;
+    var shown = 0, total = 0;
+    var seen = {};
+    cards.forEach(function (c) {
+      var href = c.getAttribute("href") || "";
+      if (seen[href]) { c.style.display = q ? "none" : ""; return; }
+      seen[href] = true; total++;
+      var hit = !q || (c.textContent || "").toLowerCase().indexOf(q) !== -1;
+      c.style.display = hit ? "" : "none";
+      if (hit) shown++;
     });
-    if (popular) popular.style.display = q ? "none" : "";
-    noResults.hidden = shown !== 0;
-    status.textContent = q ? (shown ? shown + " tool" + (shown === 1 ? "" : "s") + " found" : "") : "";
+    /* Popular duplicates: hide the whole popular grid while searching. */
+    var popularGrid = popularTitle ? popularTitle.nextElementSibling : null;
+    if (popularGrid) popularGrid.style.display = q ? "none" : "";
+    if (popularTitle) popularTitle.style.display = q ? "none" : "";
+    sections.forEach(function (s) {
+      if (s === popularGrid) return;
+      var anyVisible = Array.prototype.some.call(s.querySelectorAll(".tool-card"), function (c) { return c.style.display !== "none"; });
+      s.style.display = anyVisible ? "" : "none";
+    });
+    titles.forEach(function (t) {
+      if (t === popularTitle) return;
+      var grid = t.nextElementSibling;
+      t.style.display = (grid && grid.style.display === "none") ? "none" : "";
+    });
+    if (steps) steps.style.display = q ? "none" : "";
+    noResults.style.display = (q && shown === 0) ? "block" : "none";
+    countEl.textContent = q ? (shown + " of " + total + " tools match “" + input.value.trim() + "”") : "";
   }
-  input.addEventListener("input", apply);
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      var first = document.querySelector(".cat .tool-card:not([style*='none'])");
-      if (first) window.location.href = first.getAttribute("href");
-    }
-  });
+  input.addEventListener("input", run);
+  btn.addEventListener("click", function () { input.focus(); run(); });
+  clearBtn.addEventListener("click", function () { input.value = ""; run(); input.focus(); });
 })();
 </script>
 </body>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Format and Validate JSON — Pretty Print Online | QuickTools</title>
+<meta name="description" content="Learn how to format messy JSON into readable, indented output and validate it for errors — free, in your browser.">
+<link rel="stylesheet" href="style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KXBVGH7DLK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-KXBVGH7DLK');
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>How to Format JSON So Humans Can Read It</h1>
+  <p class="lead">Paste messy JSON and make it readable — or shrink it to a single line. Format, minify and validate entirely in your browser, with clear error messages when something is wrong.</p>
+
+  <section class="section">
+    <h2>Step by step: with the free JSON Formatter tool</h2>
+    <p>The free <a href="json-formatter.html">QuickTools JSON Formatter</a> runs entirely in your browser — no sign-up, and your files and data are never uploaded to a server.</p>
+    <ol>
+      <li>Paste your JSON into the input box.</li>
+      <li>Click <strong>Format</strong> for a readable, 2-space indented version, or <strong>Minify</strong> for a compact single line.</li>
+      <li>Click <strong>Validate only</strong> just to check the JSON is well-formed.</li>
+      <li>Copy the output, or send it back to the input for further work.</li>
+    </ol>
+    <p><a class="btn" href="json-formatter.html">Open the free JSON Formatter tool →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Good to know</h2>
+    <p>JSON from APIs and logs often arrives as one unreadable line. Formatting (pretty-printing) adds line breaks and indentation so the structure is visible at a glance — and a formatter doubles as a validator, pointing at the exact spot where broken JSON fails.</p>
+    <ul>
+      <li>The most common JSON errors: trailing commas, single quotes, and unquoted keys — a validator finds them instantly.</li>
+      <li>Minify before sending JSON over the wire in production; pretty-print when debugging.</li>
+      <li>Never paste JSON containing real passwords or tokens into random websites — this formatter runs entirely in your browser, so data stays on your machine.</li>
+    </ul>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What makes JSON invalid?</h3>
+    <p>The most common causes are trailing commas, single quotes instead of double quotes, unquoted keys, and missing commas or brackets. The error message above points to the problem — modern browsers report the position of the first syntax error.</p>
+    <h3>Does formatting change my data?</h3>
+    <p>No. Format and Minify only change whitespace. The parsed value is identical — every key, value, number and string stays exactly the same, in the same order.</p>
+    <h3>Why does my long number look different after formatting?</h3>
+    <p>JSON numbers are read as double-precision floats, so integers beyond about 16 digits can lose precision when parsed. If you work with very long IDs, keep them as strings in quotes instead of raw numbers.</p>
+    <h3>Is it safe to paste API keys or tokens here?</h3>
+    <p>The tool runs entirely in your browser and stores nothing, so your data does not leave the device. Even so, good practice is to avoid pasting production secrets into any tool you do not fully control.</p>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="tool-grid">
+    <a class="tool-card" href="base64-encoder-decoder.html">
+      <div class="icon">🔣</div>
+      <h3>Base64 Encoder &amp; Decoder</h3>
+      <p>Encode and decode Base64 with full UTF-8 support for any language and emoji.</p>
+    </a>
+    <a class="tool-card" href="color-converter.html">
+      <div class="icon">🎨</div>
+      <h3>Color Converter</h3>
+      <p>Get HEX, RGB, HSL and HSV values for any color, plus matching shades and tints.</p>
+    </a>
+    <a class="tool-card" href="merge-pdf.html">
+      <div class="icon">📄</div>
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into a single document, in the exact order you choose.</p>
+    </a>
+    <a class="tool-card" href="image-compressor.html">
+      <div class="icon">🗜️</div>
+      <h3>Image Compressor</h3>
+      <p>Shrink JPG, PNG and WebP images with a quality slider and see exactly how much space you save.</p>
+    </a>
+    </div>
+    <div class="more-tools">
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+      <a href="currency-converter.html">Currency Converter</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>

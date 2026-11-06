@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Is Base64? Encode & Decode Base64 Online — Guide | QuickTools</title>
+<meta name="description" content="Learn what Base64 encoding is, why developers use it, and how to encode or decode Base64 text online for free.">
+<link rel="stylesheet" href="style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KXBVGH7DLK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-KXBVGH7DLK');
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>What Is Base64 Encoding? (Encode and Decode Explained)</h1>
+  <p class="lead">Convert text to Base64 and back again. Fully UTF-8 safe, so Urdu, Arabic, Chinese and emoji all survive the round trip — unlike naive encoders.</p>
+
+  <section class="section">
+    <h2>Step by step: with the free Base64 Encoder &amp; Decoder tool</h2>
+    <p>The free <a href="base64-encoder-decoder.html">QuickTools Base64 Encoder &amp; Decoder</a> runs entirely in your browser — no sign-up, and your files and data are never uploaded to a server.</p>
+    <ol>
+      <li>Type or paste your content into the input box.</li>
+      <li>Click <strong>Encode</strong> to turn plain text into Base64, or <strong>Decode</strong> to turn Base64 back into readable text.</li>
+      <li>Use <strong>Swap</strong> to move the output into the input for another round.</li>
+      <li>Copy the result with the copy button.</li>
+    </ol>
+    <p><a class="btn" href="base64-encoder-decoder.html">Open the free Base64 Encoder &amp; Decoder tool →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Good to know</h2>
+    <p>Base64 turns binary data or text into a safe string of letters, numbers, + and /. It exists so data can travel through systems built for text — email, URLs, JSON — without being corrupted. It is an encoding, not encryption: anyone can decode it.</p>
+    <ul>
+      <li>Never treat Base64 as security — it hides nothing from anyone who can copy-paste.</li>
+      <li>Base64 output is about 33% larger than the original data; that is the price of text-safe transport.</li>
+      <li>If decoded text looks like gibberish, the original was probably binary data (like an image), not text.</li>
+    </ul>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is Base64 used for?</h3>
+    <p>Base64 turns binary data or special characters into plain ASCII letters, numbers, + and /, so it can travel safely through systems designed for text — emails, URLs, JSON, HTML data URIs and API tokens.</p>
+    <h3>Why do some other decoders garble non-English text?</h3>
+    <p>Base64 works on bytes, but many simple tools treat each character as one byte. Text in Urdu, Arabic, Chinese or emoji needs multiple bytes per character (UTF-8). This tool converts text to UTF-8 bytes first and back afterwards, so every language round-trips correctly.</p>
+    <h3>Is Base64 a form of encryption?</h3>
+    <p>No. Anyone can decode Base64 instantly — it is an encoding for transport, not a way to hide or protect data. Never rely on it to keep secrets secret.</p>
+    <h3>Why did my decode fail?</h3>
+    <p>The input must be valid Base64: only A–Z, a–z, 0–9, + and /, usually ending with = padding, with a length that is a multiple of 4. A clear error is shown if the characters are invalid or the decoded bytes are not valid UTF-8 text.</p>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="tool-grid">
+    <a class="tool-card" href="json-formatter.html">
+      <div class="icon">🧩</div>
+      <h3>JSON Formatter</h3>
+      <p>Format, minify and validate JSON with clear error messages — pretty-print in one click.</p>
+    </a>
+    <a class="tool-card" href="color-converter.html">
+      <div class="icon">🎨</div>
+      <h3>Color Converter</h3>
+      <p>Get HEX, RGB, HSL and HSV values for any color, plus matching shades and tints.</p>
+    </a>
+    <a class="tool-card" href="merge-pdf.html">
+      <div class="icon">📄</div>
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into a single document, in the exact order you choose.</p>
+    </a>
+    <a class="tool-card" href="image-compressor.html">
+      <div class="icon">🗜️</div>
+      <h3>Image Compressor</h3>
+      <p>Shrink JPG, PNG and WebP images with a quality slider and see exactly how much space you save.</p>
+    </a>
+    </div>
+    <div class="more-tools">
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+      <a href="currency-converter.html">Currency Converter</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>

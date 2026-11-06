@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://saeed00120.github.io/quicktools/sitemap.xml
+Sitemap: https://getquicktools.github.io/sitemap.xml

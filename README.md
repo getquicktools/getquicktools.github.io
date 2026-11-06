@@ -1,6 +1,6 @@
 # ⚡ QuickTools — Free Online Tools
 
-QuickTools is a free, privacy-first collection of 38 everyday online tools built with plain HTML, CSS and vanilla JavaScript — no build step, no sign-up and no server uploads. Every tool runs 100% in the visitor's browser, so files and text never leave the user's device. Hosted on GitHub Pages at <https://saeed00120.github.io/quicktools/>.
+QuickTools is a free, privacy-first collection of 38 everyday online tools built with plain HTML, CSS and vanilla JavaScript — no build step, no sign-up and no server uploads. Every tool runs 100% in the visitor's browser, so files and text never leave the user's device. Hosted on GitHub Pages at <https://getquicktools.github.io/>.
 
 ## PDF Tools
 

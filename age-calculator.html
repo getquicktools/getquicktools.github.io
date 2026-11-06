@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Age Calculator — Exact Age in Years, Months & Days | QuickTools</title>
+<meta name="description" content="Calculate your exact age in years, months and days from your date of birth. Also see total days lived, the weekday you were born and a countdown to your next birthday.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Age Calculator</h1>
+  <p class="lead">Enter a date of birth to get the exact age — years, months and days — plus total days lived, the day of the week of the birth, and how long until the next birthday.</p>
+  <p class="privacy-note">🔒 Private by design: the calculation happens locally in your browser — your date of birth is never uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <label for="dob">Date of birth</label>
+    <input type="date" id="dob">
+    <div class="btn-row">
+      <button class="btn" id="calcBtn" type="button">Calculate age</button>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+    <div id="results" style="display:none">
+      <div class="stats">
+        <div class="stat"><span class="num" id="ageExact">–</span><span class="lbl">Exact age</span></div>
+        <div class="stat"><span class="num" id="totalDays">–</span><span class="lbl">Total days lived</span></div>
+        <div class="stat"><span class="num" id="bornDay">–</span><span class="lbl">Day of week born</span></div>
+        <div class="stat"><span class="num" id="nextBirthday">–</span><span class="lbl">Next birthday</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Pick the date of birth using the date field (day, month and year).</li>
+      <li>Click <strong>Calculate age</strong>.</li>
+      <li>Read the exact age, total days lived, the weekday of birth and the countdown to the next birthday.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How is the exact age calculated?</h3>
+    <p>We subtract the birth date from today, borrowing days from the previous month and months from the previous year where needed — the same method used on official forms, so "27 years, 4 months, 12 days" is precise.</p>
+    <h3>Does total days lived include today?</h3>
+    <p>It counts the full days between the birth date and today, not counting the partial current day — the standard convention for age calculators.</p>
+    <h3>Can I calculate the age of something other than a person?</h3>
+    <p>Yes — it works for any start date: a business, a pet, a project or an anniversary. Just enter the date it began.</p>
+    <h3>What if I enter a future date?</h3>
+    <p>The calculator will warn you — a date of birth must be in the past for an age to make sense.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dobInput = document.getElementById("dob");
+  var errorBox = document.getElementById("errorBox");
+  var results = document.getElementById("results");
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function fmt(n) { return n.toLocaleString("en-US"); }
+
+  function calculateAge() {
+    showError("");
+    var val = dobInput.value;
+    if (!val) { showError("Please choose a date of birth first."); results.style.display = "none"; return; }
+    var parts = val.split("-");
+    var birth = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    if (isNaN(birth.getTime())) { showError("That date could not be read. Please pick a valid date."); return; }
+
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var birthDay = new Date(birth.getFullYear(), birth.getMonth(), birth.getDate());
+    if (birthDay > today) { showError("The date of birth is in the future — please pick a past date."); results.style.display = "none"; return; }
+
+    // Exact years / months / days with borrowing.
+    var years = today.getFullYear() - birth.getFullYear();
+    var months = today.getMonth() - birth.getMonth();
+    var days = today.getDate() - birth.getDate();
+    if (days < 0) {
+      months -= 1;
+      var prevMonth = new Date(today.getFullYear(), today.getMonth(), 0); // last day of previous month
+      days += prevMonth.getDate();
+    }
+    if (months < 0) { years -= 1; months += 12; }
+
+    // Total days lived.
+    var totalDays = Math.floor((today - birthDay) / 86400000);
+
+    // Day of week born.
+    var bornDay = birthDay.toLocaleDateString("en-US", { weekday: "long" });
+
+    // Next birthday.
+    var next = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+    if (next < today) next = new Date(today.getFullYear() + 1, birth.getMonth(), birth.getDate());
+    var daysToNext = Math.round((next - today) / 86400000);
+    var nextAge = next.getFullYear() - birth.getFullYear();
+    var nextText = daysToNext === 0
+      ? "Today! 🎉 (turning " + nextAge + ")"
+      : "in " + daysToNext + (daysToNext === 1 ? " day" : " days") + " (turning " + nextAge + ")";
+
+    document.getElementById("ageExact").textContent = years + "y " + months + "m " + days + "d";
+    document.getElementById("totalDays").textContent = fmt(totalDays);
+    document.getElementById("bornDay").textContent = bornDay;
+    document.getElementById("nextBirthday").textContent = nextText;
+    results.style.display = "block";
+  }
+
+  document.getElementById("calcBtn").addEventListener("click", calculateAge);
+  dobInput.addEventListener("change", calculateAge);
+})();
+</script>
+</body>
+</html>

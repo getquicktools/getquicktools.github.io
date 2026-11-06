@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter — Length, Weight & Temperature | QuickTools</title>
+<meta name="description" content="Free unit converter for length, weight and temperature: convert metres to miles, kilograms to pounds, Celsius to Fahrenheit and more, with instant results.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Unit Converter</h1>
+  <p class="lead">Convert length, weight and temperature units instantly — metres to feet, kilos to pounds, Celsius to Fahrenheit and more.</p>
+  <p class="privacy-note">🔒 Private by design: conversions run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <label for="category">Category</label>
+    <select id="category">
+      <option value="length">Length</option>
+      <option value="weight">Weight</option>
+      <option value="temperature">Temperature</option>
+    </select>
+
+    <label for="amount">Value</label>
+    <input type="number" id="amount" step="any" value="1" placeholder="Enter a value">
+
+    <div class="two-col">
+      <div>
+        <label for="fromUnit">From</label>
+        <select id="fromUnit"></select>
+      </div>
+      <div>
+        <label for="toUnit">To</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="swapBtn" type="button">⇅ Swap units</button>
+    </div>
+
+    <div class="result-box" id="result">—</div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Choose a category: <strong>Length</strong>, <strong>Weight</strong> or <strong>Temperature</strong>.</li>
+      <li>Type the value and pick the <strong>From</strong> and <strong>To</strong> units.</li>
+      <li>The converted result updates instantly — use <strong>Swap units</strong> to reverse the conversion.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How do I convert Celsius to Fahrenheit?</h3>
+    <p>Multiply the Celsius temperature by 9/5 and add 32. So 20°C × 9/5 + 32 = 68°F. The temperature category handles Celsius, Fahrenheit and Kelvin for you.</p>
+    <h3>How many pounds are in a kilogram?</h3>
+    <p>One kilogram equals about 2.20462 pounds, and one pound is exactly 0.45359237 kilograms by international definition.</p>
+    <h3>Is a ton here a metric tonne?</h3>
+    <p>Yes — the weight list uses the metric ton (tonne) of 1,000 kg, the standard in most of the world. Note that a US "short ton" is 2,000 lb (≈ 907 kg), which is different.</p>
+    <h3>How accurate are the results?</h3>
+    <p>Conversions use exact international definitions (e.g. 1 inch = 2.54 cm exactly) and results are shown to up to 10 significant figures, trimmed of trailing zeros.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  // Factors are relative to the category base unit (metre / kilogram).
+  var DATA = {
+    length: {
+      label: "Length",
+      units: {
+        mm: { name: "Millimetres (mm)", factor: 0.001 },
+        cm: { name: "Centimetres (cm)", factor: 0.01 },
+        m: { name: "Metres (m)", factor: 1 },
+        km: { name: "Kilometres (km)", factor: 1000 },
+        inch: { name: "Inches (in)", factor: 0.0254 },
+        foot: { name: "Feet (ft)", factor: 0.3048 },
+        yard: { name: "Yards (yd)", factor: 0.9144 },
+        mile: { name: "Miles (mi)", factor: 1609.344 }
+      },
+      defaults: ["m", "foot"]
+    },
+    weight: {
+      label: "Weight",
+      units: {
+        g: { name: "Grams (g)", factor: 0.001 },
+        kg: { name: "Kilograms (kg)", factor: 1 },
+        lb: { name: "Pounds (lb)", factor: 0.45359237 },
+        oz: { name: "Ounces (oz)", factor: 0.028349523125 },
+        ton: { name: "Metric tons (t)", factor: 1000 }
+      },
+      defaults: ["kg", "lb"]
+    },
+    temperature: {
+      label: "Temperature",
+      units: {
+        c: { name: "Celsius (°C)" },
+        f: { name: "Fahrenheit (°F)" },
+        k: { name: "Kelvin (K)" }
+      },
+      defaults: ["c", "f"]
+    }
+  };
+
+  var category = document.getElementById("category");
+  var amount = document.getElementById("amount");
+  var fromUnit = document.getElementById("fromUnit");
+  var toUnit = document.getElementById("toUnit");
+  var result = document.getElementById("result");
+
+  function fmt(n) {
+    if (!isFinite(n)) return "—";
+    if (n !== 0 && (Math.abs(n) >= 1e15 || Math.abs(n) < 1e-6)) return n.toExponential(6);
+    return parseFloat(n.toPrecision(10)).toLocaleString("en-US", { maximumFractionDigits: 10 });
+  }
+
+  function toCelsius(v, unit) {
+    if (unit === "c") return v;
+    if (unit === "f") return (v - 32) * 5 / 9;
+    return v - 273.15; // kelvin
+  }
+  function fromCelsius(v, unit) {
+    if (unit === "c") return v;
+    if (unit === "f") return v * 9 / 5 + 32;
+    return v + 273.15; // kelvin
+  }
+
+  function convert() {
+    var cat = DATA[category.value];
+    var v = parseFloat(amount.value);
+    if (isNaN(v)) { result.textContent = "Enter a value to see the result."; return; }
+    var from = fromUnit.value, to = toUnit.value;
+    var out;
+    if (category.value === "temperature") {
+      out = fromCelsius(toCelsius(v, from), to);
+    } else {
+      out = v * cat.units[from].factor / cat.units[to].factor;
+    }
+    result.innerHTML = "";
+    var strong = document.createElement("strong");
+    strong.textContent = fmt(v) + " " + cat.units[from].name + " = " + fmt(out) + " " + cat.units[to].name;
+    result.appendChild(strong);
+  }
+
+  function populateUnits() {
+    var cat = DATA[category.value];
+    fromUnit.innerHTML = "";
+    toUnit.innerHTML = "";
+    Object.keys(cat.units).forEach(function (key) {
+      var o1 = document.createElement("option");
+      o1.value = key; o1.textContent = cat.units[key].name;
+      fromUnit.appendChild(o1);
+      var o2 = document.createElement("option");
+      o2.value = key; o2.textContent = cat.units[key].name;
+      toUnit.appendChild(o2);
+    });
+    fromUnit.value = cat.defaults[0];
+    toUnit.value = cat.defaults[1];
+    convert();
+  }
+
+  category.addEventListener("change", populateUnits);
+  amount.addEventListener("input", convert);
+  fromUnit.addEventListener("change", convert);
+  toUnit.addEventListener("change", convert);
+  document.getElementById("swapBtn").addEventListener("click", function () {
+    var t = fromUnit.value;
+    fromUnit.value = toUnit.value;
+    toUnit.value = t;
+    convert();
+  });
+
+  populateUnits();
+})();
+</script>
+</body>
+</html>

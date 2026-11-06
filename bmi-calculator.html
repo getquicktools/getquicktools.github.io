@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI Calculator — Body Mass Index (Metric & Imperial) | QuickTools</title>
+<meta name="description" content="Calculate your Body Mass Index free with metric or imperial units. Instantly see whether your BMI is underweight, normal, overweight or obese, with a visual scale.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>BMI Calculator</h1>
+  <p class="lead">Work out your Body Mass Index (BMI) from your height and weight, in metric or imperial units, and see where you fall on the standard scale.</p>
+  <p class="privacy-note">🔒 Private by design: the calculation runs locally in your browser — your height and weight are never uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <label for="units">Units</label>
+    <select id="units">
+      <option value="metric">Metric (cm / kg)</option>
+      <option value="imperial">Imperial (feet / inches / lb)</option>
+    </select>
+
+    <div id="metricFields">
+      <label for="heightCm">Height (cm)</label>
+      <input type="number" id="heightCm" min="0" step="0.1" placeholder="e.g. 175">
+      <label for="weightKg">Weight (kg)</label>
+      <input type="number" id="weightKg" min="0" step="0.1" placeholder="e.g. 70">
+    </div>
+
+    <div id="imperialFields" style="display:none">
+      <div class="two-col">
+        <div>
+          <label for="heightFt">Height (feet)</label>
+          <input type="number" id="heightFt" min="0" step="1" placeholder="e.g. 5">
+        </div>
+        <div>
+          <label for="heightIn">Height (inches)</label>
+          <input type="number" id="heightIn" min="0" max="11.9" step="0.1" placeholder="e.g. 9">
+        </div>
+      </div>
+      <label for="weightLb">Weight (lb)</label>
+      <input type="number" id="weightLb" min="0" step="0.1" placeholder="e.g. 154">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="calcBtn" type="button">Calculate BMI</button>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+
+    <div id="results" style="display:none">
+      <div class="result-box" style="text-align:center">
+        Your BMI is <strong id="bmiValue" style="font-size:1.5rem">–</strong><br>
+        Category: <strong id="bmiCategory">–</strong>
+      </div>
+      <div class="bmi-bar"><div class="bmi-marker" id="bmiMarker" style="left:0%"></div></div>
+      <div class="bmi-scale"><span>14</span><span>18.5</span><span>25</span><span>30</span><span>40</span></div>
+      <p class="note" style="text-align:center">Underweight &lt; 18.5 · Normal 18.5–24.9 · Overweight 25–29.9 · Obese ≥ 30</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Choose <strong>Metric</strong> or <strong>Imperial</strong> units.</li>
+      <li>Enter your height and weight.</li>
+      <li>Click <strong>Calculate BMI</strong> to see your score, category and position on the scale.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is BMI?</h3>
+    <p>Body Mass Index is your weight in kilograms divided by the square of your height in metres (kg/m²). It is a quick screening measure used worldwide to classify underweight, normal weight, overweight and obesity in adults.</p>
+    <h3>What are the BMI categories?</h3>
+    <p>Underweight: below 18.5. Normal: 18.5–24.9. Overweight: 25–29.9. Obese: 30 and above. These are the standard World Health Organization ranges for adults.</p>
+    <h3>Is BMI accurate for everyone?</h3>
+    <p>BMI is a general guide, not a diagnosis. It can overestimate body fat in muscular athletes and underestimate it in older adults. For a full picture, talk to a healthcare professional.</p>
+    <h3>Does this calculator work for children?</h3>
+    <p>No — children and teenagers use age- and sex-specific BMI percentiles instead of the adult ranges shown here.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var units = document.getElementById("units");
+  var metricFields = document.getElementById("metricFields");
+  var imperialFields = document.getElementById("imperialFields");
+  var errorBox = document.getElementById("errorBox");
+  var results = document.getElementById("results");
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+
+  units.addEventListener("change", function () {
+    var imperial = units.value === "imperial";
+    metricFields.style.display = imperial ? "none" : "block";
+    imperialFields.style.display = imperial ? "block" : "none";
+  });
+
+  function calculateBmi() {
+    showError("");
+    var heightM, weightKg;
+    if (units.value === "metric") {
+      var cm = parseFloat(document.getElementById("heightCm").value);
+      var kg = parseFloat(document.getElementById("weightKg").value);
+      if (!(cm > 0) || !(kg > 0)) { showError("Please enter a valid height (cm) and weight (kg)."); results.style.display = "none"; return; }
+      heightM = cm / 100;
+      weightKg = kg;
+    } else {
+      var ft = parseFloat(document.getElementById("heightFt").value) || 0;
+      var inch = parseFloat(document.getElementById("heightIn").value) || 0;
+      var lb = parseFloat(document.getElementById("weightLb").value);
+      var totalInches = ft * 12 + inch;
+      if (!(totalInches > 0) || !(lb > 0)) { showError("Please enter a valid height (feet/inches) and weight (lb)."); results.style.display = "none"; return; }
+      heightM = totalInches * 0.0254;
+      weightKg = lb * 0.45359237;
+    }
+
+    var bmi = weightKg / (heightM * heightM);
+    var category, color;
+    if (bmi < 18.5) { category = "Underweight"; color = "#0284c7"; }
+    else if (bmi < 25) { category = "Normal"; color = "#16a34a"; }
+    else if (bmi < 30) { category = "Overweight"; color = "#d97706"; }
+    else { category = "Obese"; color = "#dc2626"; }
+
+    document.getElementById("bmiValue").textContent = bmi.toFixed(1);
+    var catEl = document.getElementById("bmiCategory");
+    catEl.textContent = category;
+    catEl.style.color = color;
+
+    // Marker position: map BMI 14–40 onto 0–100% of the bar.
+    var pct = (bmi - 14) / (40 - 14) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    document.getElementById("bmiMarker").style.left = pct + "%";
+
+    results.style.display = "block";
+  }
+
+  document.getElementById("calcBtn").addEventListener("click", calculateBmi);
+  ["heightCm", "weightKg", "heightFt", "heightIn", "weightLb"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () {
+      if (results.style.display === "block") calculateBmi();
+    });
+  });
+})();
+</script>
+</body>
+</html>

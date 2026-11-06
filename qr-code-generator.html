@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator — Create & Download QR Codes Free | QuickTools</title>
+<meta name="description" content="Generate QR codes from any text or URL for free and download them as PNG images up to 1024×1024. No sign-up, no watermarks, works in your browser.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>QR Code Generator</h1>
+  <p class="lead">Turn any link or text into a scannable QR code and download it as a high-quality PNG — perfect for menus, posters, packaging and business cards.</p>
+  <p class="privacy-note">🔒 Private by design: your QR code is generated locally in your browser — the text you enter is never uploaded or tracked.</p>
+
+  <div class="tool-panel">
+    <label for="qrText">Text or URL</label>
+    <input type="text" id="qrText" placeholder="https://example.com or any text" value="https://example.com">
+
+    <label for="qrSize">Size (pixels)</label>
+    <select id="qrSize">
+      <option value="256">256 × 256 — good for screens</option>
+      <option value="512" selected>512 × 512 — good for documents</option>
+      <option value="1024">1024 × 1024 — good for print</option>
+    </select>
+
+    <div class="btn-row">
+      <button class="btn" id="generateBtn" type="button">Generate QR code</button>
+      <button class="btn btn-secondary" id="downloadBtn" type="button" disabled>⬇ Download PNG</button>
+    </div>
+
+    <div class="preview-wrap">
+      <div id="qrBox" style="display:inline-block;padding:12px;background:#fff;border:1px solid var(--border);border-radius:8px"></div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Type or paste the text or website URL you want the code to open.</li>
+      <li>Pick a size — bigger is better for printing.</li>
+      <li>Click <strong>Generate QR code</strong> and check the preview.</li>
+      <li>Click <strong>Download PNG</strong> to save the image, then use it anywhere.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Do QR codes from here expire?</h3>
+    <p>No. These are static QR codes that encode your text directly, so they work forever as long as the content (for example the website address) stays the same.</p>
+    <h3>Can I use the QR code commercially?</h3>
+    <p>Yes — the PNG you download is yours to use on menus, flyers, products and business cards at no cost.</p>
+    <h3>How much text can a QR code hold?</h3>
+    <p>Up to roughly 4,000 characters, but shorter is better: short links scan faster and more reliably, especially when printed small.</p>
+    <h3>Why won't my QR code scan?</h3>
+    <p>Make sure there is enough contrast and a quiet margin around the code, and avoid shrinking a large-code image too small. Test with your phone before printing in bulk.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var textInput = document.getElementById("qrText");
+  var sizeSelect = document.getElementById("qrSize");
+  var generateBtn = document.getElementById("generateBtn");
+  var downloadBtn = document.getElementById("downloadBtn");
+  var qrBox = document.getElementById("qrBox");
+  var errorBox = document.getElementById("errorBox");
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libraryMissing() { return typeof window.QRCode === "undefined"; }
+
+  if (libraryMissing()) {
+    showError("The QR code library could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function generateQr() {
+    showError("");
+    if (libraryMissing()) {
+      showError("The QR code library is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    var text = textInput.value.trim();
+    if (!text) {
+      showError("Please enter some text or a URL first.");
+      downloadBtn.disabled = true;
+      return;
+    }
+    var size = parseInt(sizeSelect.value, 10);
+    qrBox.innerHTML = "";
+    try {
+      // qrcodejs renders a canvas (+ fallback image) at exactly this size.
+      new window.QRCode(qrBox, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+      downloadBtn.disabled = false;
+    } catch (e) {
+      showError("Could not generate the QR code — the text may be too long. Try shortening it.");
+      downloadBtn.disabled = true;
+    }
+  }
+
+  downloadBtn.addEventListener("click", function () {
+    var size = parseInt(sizeSelect.value, 10);
+    var srcCanvas = qrBox.querySelector("canvas");
+    var srcImg = qrBox.querySelector("img");
+    var out = document.createElement("canvas");
+    out.width = size;
+    out.height = size;
+    var ctx = out.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+
+    function finish() {
+      var a = document.createElement("a");
+      a.href = out.toDataURL("image/png");
+      a.download = "qrcode-" + size + ".png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    if (srcCanvas) {
+      ctx.drawImage(srcCanvas, 0, 0, size, size);
+      finish();
+    } else if (srcImg && srcImg.src) {
+      var img = new Image();
+      img.onload = function () { ctx.drawImage(img, 0, 0, size, size); finish(); };
+      img.onerror = function () { showError("Download failed — please use right-click → Save image on the QR code instead."); };
+      img.src = srcImg.src;
+    } else {
+      showError("Nothing to download yet — generate a QR code first.");
+    }
+  });
+
+  generateBtn.addEventListener("click", generateQr);
+  sizeSelect.addEventListener("change", function () { if (qrBox.innerHTML) generateQr(); });
+  generateQr();
+})();
+</script>
+</body>
+</html>

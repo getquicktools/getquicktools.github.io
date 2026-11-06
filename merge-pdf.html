@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merge PDF — Combine PDF Files Online Free | QuickTools</title>
+<meta name="description" content="Merge multiple PDF files into one document online for free. Reorder files, combine and download — everything runs in your browser, files are never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Merge PDF</h1>
+  <p class="lead">Combine several PDF files into a single document. Add your files, put them in the order you want, and download the merged PDF.</p>
+  <p class="privacy-note">🔒 Private by design: your PDFs are merged locally in your browser — they are never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop PDF files here, or click to choose files</div>
+      <div>You can select several PDFs at once</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf" multiple>
+    </div>
+
+    <ul class="file-list" id="fileList"></ul>
+
+    <div class="btn-row">
+      <button class="btn" id="mergeBtn" type="button" disabled>🔗 Merge &amp; download merged.pdf</button>
+      <button class="btn btn-secondary" id="clearBtn" type="button" disabled>Clear all</button>
+    </div>
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF files into the box, or click it to select several files at once.</li>
+      <li>Use the ↑ and ↓ buttons to arrange the files — pages are merged in the order shown.</li>
+      <li>Click <strong>Merge &amp; download merged.pdf</strong>.</li>
+      <li>Your combined file downloads as <span class="mono">merged.pdf</span>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Are my PDF files uploaded to a server?</h3>
+    <p>No. Merging is done entirely in your browser using the pdf-lib JavaScript library, so even confidential documents stay on your device.</p>
+    <h3>How many PDFs can I merge at once?</h3>
+    <p>There is no fixed limit. Very large sets of files are only limited by your device's memory — dozens of typical documents merge in seconds.</p>
+    <h3>Will the quality of my PDFs change?</h3>
+    <p>No. Pages are copied exactly as they are — text, images, links and resolution are preserved. Nothing is re-compressed.</p>
+    <h3>Can I merge password-protected PDFs?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser library. Remove the password in your PDF viewer first, then merge.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var fileList = document.getElementById("fileList");
+  var mergeBtn = document.getElementById("mergeBtn");
+  var clearBtn = document.getElementById("clearBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var files = []; // File objects, in merge order
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libraryMissing() { return typeof window.PDFLib === "undefined"; }
+
+  // Warn early if the pdf-lib CDN script could not be loaded.
+  if (libraryMissing()) {
+    showError("The PDF library (pdf-lib) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+    mergeBtn.disabled = true;
+  }
+
+  function renderList() {
+    fileList.innerHTML = "";
+    files.forEach(function (file, idx) {
+      var li = document.createElement("li");
+      var name = document.createElement("span");
+      name.className = "fname";
+      name.textContent = (idx + 1) + ". " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+      li.appendChild(name);
+
+      var up = document.createElement("button");
+      up.type = "button"; up.textContent = "↑"; up.title = "Move up";
+      up.disabled = idx === 0;
+      up.addEventListener("click", function () {
+        var t = files[idx - 1]; files[idx - 1] = files[idx]; files[idx] = t; renderList();
+      });
+      var down = document.createElement("button");
+      down.type = "button"; down.textContent = "↓"; down.title = "Move down";
+      down.disabled = idx === files.length - 1;
+      down.addEventListener("click", function () {
+        var t = files[idx + 1]; files[idx + 1] = files[idx]; files[idx] = t; renderList();
+      });
+      var del = document.createElement("button");
+      del.type = "button"; del.textContent = "✕"; del.title = "Remove";
+      del.addEventListener("click", function () { files.splice(idx, 1); renderList(); });
+
+      li.appendChild(up); li.appendChild(down); li.appendChild(del);
+      fileList.appendChild(li);
+    });
+    mergeBtn.disabled = files.length < 2 || libraryMissing();
+    clearBtn.disabled = files.length === 0;
+    status.textContent = files.length
+      ? files.length + (files.length === 1 ? " file added — add at least one more to merge." : " files ready to merge.")
+      : "";
+  }
+
+  function addFiles(fileObjs) {
+    showError("");
+    var added = 0;
+    for (var i = 0; i < fileObjs.length; i++) {
+      var f = fileObjs[i];
+      if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) { files.push(f); added++; }
+    }
+    if (added === 0) showError("No PDF files were found in that selection. Please choose PDF files only.");
+    renderList();
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { addFiles(fileInput.files); fileInput.value = ""; });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  clearBtn.addEventListener("click", function () { files = []; showError(""); renderList(); });
+
+  mergeBtn.addEventListener("click", function () {
+    if (libraryMissing()) {
+      showError("The PDF library (pdf-lib) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    showError("");
+    mergeBtn.disabled = true;
+    status.textContent = "Merging… please wait.";
+    mergePdfs().then(function () {
+      status.textContent = "Done! Your merged.pdf has been downloaded.";
+      mergeBtn.disabled = files.length < 2;
+    }).catch(function (err) {
+      showError("Merging failed: " + (err && err.message ? err.message : "one of the files may be corrupted or password-protected."));
+      status.textContent = "";
+      mergeBtn.disabled = files.length < 2;
+    });
+  });
+
+  function mergePdfs() {
+    var PDFDocument = window.PDFLib.PDFDocument;
+    return PDFDocument.create().then(function (merged) {
+      var chain = Promise.resolve();
+      files.forEach(function (file) {
+        chain = chain.then(function () {
+          return file.arrayBuffer().then(function (buf) {
+            return PDFDocument.load(buf, { ignoreEncryption: false });
+          }).then(function (src) {
+            return merged.copyPages(src, src.getPageIndices());
+          }).then(function (pages) {
+            pages.forEach(function (p) { merged.addPage(p); });
+          });
+        });
+      });
+      return chain.then(function () { return merged.save(); });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "merged.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    });
+  }
+
+  renderList();
+})();
+</script>
+</body>
+</html>

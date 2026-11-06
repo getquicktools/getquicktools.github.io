@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Converter — UPPERCASE, Title Case, camelCase & More | QuickTools</title>
+<meta name="description" content="Convert text between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, snake_case and alternating case online for free. One click, with copy button and live counts.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Case Converter</h1>
+  <p class="lead">Paste your text and convert it to any case style with one click — handy for headings, code variable names, social posts and fixing accidental CAPS LOCK.</p>
+  <p class="privacy-note">🔒 Private by design: conversion happens locally in your browser — your text is never uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <label for="text">Your text</label>
+    <textarea id="text" placeholder="Type or paste your text here…"></textarea>
+    <p class="note"><span id="counts">0 words · 0 characters</span></p>
+
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn" type="button" data-case="upper">UPPERCASE</button>
+      <button class="btn" type="button" data-case="lower">lowercase</button>
+      <button class="btn" type="button" data-case="title">Title Case</button>
+      <button class="btn" type="button" data-case="sentence">Sentence case</button>
+      <button class="btn" type="button" data-case="camel">camelCase</button>
+      <button class="btn" type="button" data-case="snake">snake_case</button>
+      <button class="btn" type="button" data-case="alternating">aLtErNaTiNg</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="copyBtn" type="button">📋 Copy text</button>
+      <button class="btn btn-secondary" id="clearBtn" type="button">Clear</button>
+    </div>
+    <p class="note" id="copyStatus"></p>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Type or paste the text into the box.</li>
+      <li>Click the case style you want — the text converts instantly.</li>
+      <li>Click <strong>Copy text</strong> and paste it wherever you need it.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is the difference between Title Case and Sentence case?</h3>
+    <p>Title Case capitalises the first letter of every word ("The Quick Brown Fox"), which suits headlines. Sentence case capitalises only the first letter of each sentence ("The quick brown fox"), which suits normal writing.</p>
+    <h3>What are camelCase and snake_case used for?</h3>
+    <p>They are naming styles for code and file names. camelCase joins words with each new word capitalised (myVariableName); snake_case joins them with underscores (my_variable_name).</p>
+    <h3>I typed in ALL CAPS by accident — can this fix it?</h3>
+    <p>Yes. Paste the text and click Sentence case or lowercase to turn shouting caps into normal, readable text.</p>
+    <h3>Does converting change my word count?</h3>
+    <p>Only camelCase and snake_case join words together, which changes how words are separated. The character count shown always reflects the current text exactly.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var text = document.getElementById("text");
+  var counts = document.getElementById("counts");
+  var copyStatus = document.getElementById("copyStatus");
+
+  function updateCounts() {
+    var v = text.value;
+    var w = v.trim() ? v.trim().split(/\s+/).length : 0;
+    counts.textContent = w + (w === 1 ? " word" : " words") + " · " + v.length + (v.length === 1 ? " character" : " characters");
+  }
+
+  function wordsOf(v) {
+    return v.toLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
+  }
+  function capitalize(w) { return w.charAt(0).toUpperCase() + w.slice(1); }
+
+  var converters = {
+    upper: function (v) { return v.toUpperCase(); },
+    lower: function (v) { return v.toLowerCase(); },
+    title: function (v) {
+      return v.toLowerCase().replace(/(^|[\s"'(\[{])(\p{L})/gu, function (m, pre, ch) { return pre + ch.toUpperCase(); });
+    },
+    sentence: function (v) {
+      var lower = v.toLowerCase();
+      return lower.replace(/(^\s*\p{L})|([.!?]\s+\p{L})/gu, function (m) { return m.toUpperCase(); });
+    },
+    camel: function (v) {
+      var words = wordsOf(v);
+      return words.map(function (w, i) { return i === 0 ? w : capitalize(w); }).join("");
+    },
+    snake: function (v) { return wordsOf(v).join("_"); },
+    alternating: function (v) {
+      var upper = true, out = "";
+      for (var i = 0; i < v.length; i++) {
+        var ch = v.charAt(i);
+        if (/[\p{L}]/u.test(ch)) {
+          out += upper ? ch.toUpperCase() : ch.toLowerCase();
+          upper = !upper;
+        } else {
+          out += ch;
+        }
+      }
+      return out;
+    }
+  };
+
+  var buttons = document.querySelectorAll("[data-case]");
+  buttons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var fn = converters[btn.getAttribute("data-case")];
+      if (fn) {
+        text.value = fn(text.value);
+        updateCounts();
+        copyStatus.textContent = "";
+      }
+    });
+  });
+
+  text.addEventListener("input", updateCounts);
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    if (!text.value) { copyStatus.textContent = "Nothing to copy yet."; return; }
+    function done() { copyStatus.textContent = "✅ Copied to clipboard."; }
+    function fallback() {
+      text.select();
+      try { document.execCommand("copy"); done(); }
+      catch (e) { copyStatus.textContent = "Copy failed — select the text and copy manually."; }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text.value).then(done, fallback);
+    } else { fallback(); }
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", function () {
+    text.value = "";
+    updateCounts();
+    copyStatus.textContent = "";
+    text.focus();
+  });
+
+  updateCounts();
+})();
+</script>
+</body>
+</html>

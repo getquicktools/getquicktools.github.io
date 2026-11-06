@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Counter — Count Words, Characters & Reading Time | QuickTools</title>
+<meta name="description" content="Free online word counter: live word, character, sentence and paragraph counts, reading time estimate and your most frequent words. Private — text never leaves your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Word Counter</h1>
+  <p class="lead">Paste or type your text and get instant counts — words, characters, sentences, paragraphs, reading time and your most frequently used words.</p>
+  <p class="privacy-note">🔒 Private by design: counting happens locally in your browser — your text is never uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <label for="text">Your text</label>
+    <textarea id="text" placeholder="Start typing or paste your text here…"></textarea>
+
+    <div class="stats">
+      <div class="stat"><span class="num" id="words">0</span><span class="lbl">Words</span></div>
+      <div class="stat"><span class="num" id="chars">0</span><span class="lbl">Characters</span></div>
+      <div class="stat"><span class="num" id="charsNoSpaces">0</span><span class="lbl">Characters (no spaces)</span></div>
+      <div class="stat"><span class="num" id="sentences">0</span><span class="lbl">Sentences</span></div>
+      <div class="stat"><span class="num" id="paragraphs">0</span><span class="lbl">Paragraphs</span></div>
+      <div class="stat"><span class="num" id="readingTime">0 sec</span><span class="lbl">Reading time</span></div>
+    </div>
+
+    <h3 style="margin-bottom:6px">Most frequent words</h3>
+    <p id="topWords" class="note" style="font-size:1rem;color:var(--text)">—</p>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="clearBtn" type="button">Clear text</button>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Type directly into the box, or paste text from any document or web page.</li>
+      <li>All counts update live as you type — no button to press.</li>
+      <li>Check the reading time estimate and the list of your most frequent words below the counts.</li>
+      <li>Use <strong>Clear text</strong> to start over.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How is reading time calculated?</h3>
+    <p>Reading time assumes an average adult reading speed of about 200 words per minute. A 1,000-word article therefore takes roughly 5 minutes to read.</p>
+    <h3>What counts as a word?</h3>
+    <p>Any sequence of characters separated by spaces, tabs or line breaks counts as one word — so "hello-world" counts as one word, and numbers count as words too.</p>
+    <h3>How are sentences counted?</h3>
+    <p>Sentences are counted by ending punctuation (. ! ?). Text without ending punctuation counts as a single sentence while you are still writing it.</p>
+    <h3>Is my text saved or sent anywhere?</h3>
+    <p>No. Everything is counted in your browser the moment you type. Close the tab and the text is gone.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var text = document.getElementById("text");
+  var wordsEl = document.getElementById("words");
+  var charsEl = document.getElementById("chars");
+  var charsNoSpacesEl = document.getElementById("charsNoSpaces");
+  var sentencesEl = document.getElementById("sentences");
+  var paragraphsEl = document.getElementById("paragraphs");
+  var readingTimeEl = document.getElementById("readingTime");
+  var topWordsEl = document.getElementById("topWords");
+
+  function updateCounts() {
+    var value = text.value;
+
+    var trimmed = value.trim();
+    var wordList = trimmed ? trimmed.split(/\s+/) : [];
+    var wordCount = wordList.length;
+
+    var charCount = value.length;
+    var noSpacesCount = value.replace(/\s/g, "").length;
+
+    // Sentences: split on ., ! or ? and keep parts that contain a word character.
+    var sentenceCount = 0;
+    if (trimmed) {
+      var parts = trimmed.split(/[.!?]+/);
+      sentenceCount = parts.filter(function (p) { return /[\p{L}\p{N}]/u.test(p); }).length;
+    }
+
+    // Paragraphs: blocks of text separated by one or more line breaks.
+    var paragraphCount = 0;
+    if (trimmed) {
+      paragraphCount = trimmed.split(/\n+/).filter(function (p) { return p.trim().length > 0; }).length;
+    }
+
+    // Reading time at ~200 words per minute.
+    var readingText;
+    if (wordCount === 0) {
+      readingText = "0 sec";
+    } else {
+      var seconds = Math.ceil((wordCount / 200) * 60);
+      if (seconds < 60) readingText = seconds + " sec";
+      else {
+        var mins = Math.floor(seconds / 60);
+        var rem = seconds % 60;
+        readingText = rem ? mins + " min " + rem + " sec" : mins + " min";
+      }
+    }
+
+    // Top 5 frequent words (case-insensitive, punctuation stripped).
+    var topText = "—";
+    if (trimmed) {
+      var tokens = trimmed.toLowerCase().match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) || [];
+      var freq = {};
+      tokens.forEach(function (w) { freq[w] = (freq[w] || 0) + 1; });
+      var sorted = Object.keys(freq).sort(function (a, b) {
+        if (freq[b] !== freq[a]) return freq[b] - freq[a];
+        return a < b ? -1 : 1;
+      }).slice(0, 5);
+      if (sorted.length) {
+        topText = sorted.map(function (w) { return w + " × " + freq[w]; }).join("  ·  ");
+      }
+    }
+
+    wordsEl.textContent = wordCount;
+    charsEl.textContent = charCount;
+    charsNoSpacesEl.textContent = noSpacesCount;
+    sentencesEl.textContent = sentenceCount;
+    paragraphsEl.textContent = paragraphCount;
+    readingTimeEl.textContent = readingText;
+    topWordsEl.textContent = topText;
+  }
+
+  text.addEventListener("input", updateCounts);
+  document.getElementById("clearBtn").addEventListener("click", function () {
+    text.value = "";
+    updateCounts();
+    text.focus();
+  });
+  updateCounts();
+})();
+</script>
+</body>
+</html>

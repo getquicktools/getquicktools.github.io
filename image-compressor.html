@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Compressor — Compress JPG, PNG & WebP Online Free | QuickTools</title>
+<meta name="description" content="Compress JPG, PNG and WebP images online for free. Adjust quality with a slider, compare sizes and download — all in your browser, nothing is uploaded.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Image Compressor</h1>
+  <p class="lead">Make image files smaller without installing anything. Pick a quality level, preview the result and download the compressed image.</p>
+  <p class="privacy-note">🔒 Private by design: your image is compressed locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop an image here, or click to choose a file</div>
+      <div>Supports JPG, PNG and WebP</div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div id="controls" style="display:none">
+      <label for="quality">Quality: <span id="qualityVal">0.80</span></label>
+      <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8">
+      <p class="note">Lower quality = smaller file. Note: PNG is a lossless format, so quality mainly affects JPG and WebP output.</p>
+
+      <label for="format">Output format</label>
+      <select id="format">
+        <option value="image/jpeg">JPG — best for photos, smallest size</option>
+        <option value="image/webp">WebP — modern, great compression</option>
+        <option value="image/png">PNG — lossless, keeps transparency</option>
+      </select>
+
+      <div class="stats">
+        <div class="stat"><span class="num" id="origSize">–</span><span class="lbl">Original size</span></div>
+        <div class="stat"><span class="num" id="newSize">–</span><span class="lbl">Compressed size</span></div>
+        <div class="stat"><span class="num" id="savedPct">–</span><span class="lbl">Saved</span></div>
+      </div>
+
+      <div class="preview-wrap">
+        <img id="preview" alt="Compressed image preview">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="downloadBtn" type="button">⬇ Download compressed image</button>
+      </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop an image onto the box above, or click it to browse your files.</li>
+      <li>Move the quality slider — 0.8 is a good balance of size and sharpness.</li>
+      <li>Choose an output format (JPG for photos, WebP for the web, PNG for transparency).</li>
+      <li>Check the size comparison and preview, then click <strong>Download compressed image</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Is my image uploaded anywhere?</h3>
+    <p>No. Compression happens entirely in your browser with the HTML canvas, so your photo never leaves your device.</p>
+    <h3>Why didn't my PNG get much smaller?</h3>
+    <p>PNG is lossless — it keeps every pixel exactly, so it compresses less. If file size matters most, switch the output format to JPG or WebP.</p>
+    <h3>What quality setting should I use?</h3>
+    <p>0.75–0.85 usually cuts file size dramatically while staying visually sharp. Go lower (0.4–0.6) for thumbnails or when size matters more than detail.</p>
+    <h3>Does compressing change the image dimensions?</h3>
+    <p>No — width and height stay exactly the same. Only the file encoding (and therefore the file size) changes.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="case-converter.html">Case Converter</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var quality = document.getElementById("quality");
+  var qualityVal = document.getElementById("qualityVal");
+  var format = document.getElementById("format");
+  var origSizeEl = document.getElementById("origSize");
+  var newSizeEl = document.getElementById("newSize");
+  var savedPctEl = document.getElementById("savedPct");
+  var preview = document.getElementById("preview");
+  var downloadBtn = document.getElementById("downloadBtn");
+  var errorBox = document.getElementById("errorBox");
+
+  var img = null;          // loaded HTMLImageElement
+  var originalBytes = 0;
+  var compressedBlob = null;
+  var compressedUrl = null;
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return "0 B";
+    var units = ["B", "KB", "MB", "GB"];
+    var i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
+    return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+  }
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+
+  function compress() {
+    if (!img) return;
+    var canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    var ctx = canvas.getContext("2d");
+    var type = format.value;
+    if (type === "image/jpeg") {
+      // JPEG has no transparency — paint a white background first.
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    ctx.drawImage(img, 0, 0);
+    canvas.toBlob(function (blob) {
+      if (!blob) { showError("Sorry, this image could not be compressed in your browser."); return; }
+      compressedBlob = blob;
+      if (compressedUrl) URL.revokeObjectURL(compressedUrl);
+      compressedUrl = URL.createObjectURL(blob);
+      preview.src = compressedUrl;
+      newSizeEl.textContent = formatBytes(blob.size);
+      var saved = originalBytes > 0 ? (1 - blob.size / originalBytes) * 100 : 0;
+      savedPctEl.textContent = (saved >= 0 ? "" : "+") + saved.toFixed(1) + "%";
+    }, type, parseFloat(quality.value));
+  }
+
+  function loadFile(file) {
+    showError("");
+    if (!file) return;
+    if (file.type.indexOf("image/") !== 0) {
+      showError("Please choose an image file (JPG, PNG, WebP, GIF…).");
+      return;
+    }
+    originalBytes = file.size;
+    origSizeEl.textContent = formatBytes(file.size);
+    var url = URL.createObjectURL(file);
+    var image = new Image();
+    image.onload = function () {
+      img = image;
+      controls.style.display = "block";
+      compress();
+    };
+    image.onerror = function () { showError("That file could not be read as an image."); };
+    image.src = url;
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { loadFile(fileInput.files[0]); });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+  quality.addEventListener("input", function () {
+    qualityVal.textContent = parseFloat(quality.value).toFixed(2);
+    compress();
+  });
+  format.addEventListener("change", compress);
+  downloadBtn.addEventListener("click", function () {
+    if (!compressedBlob) return;
+    var ext = { "image/jpeg": "jpg", "image/webp": "webp", "image/png": "png" }[format.value] || "jpg";
+    var a = document.createElement("a");
+    a.href = compressedUrl;
+    a.download = "compressed-image." + ext;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calorie Calculator — BMR & Daily Calorie Needs (Mifflin-St Jeor) | QuickTools</title>
+<meta name="description" content="Free calorie calculator using the Mifflin-St Jeor equation: find your BMR, maintenance calories (TDEE) and weight loss or gain targets. An estimate, not medical advice.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Calorie Calculator</h1>
+  <p class="lead">Estimate how many calories your body burns each day, and what to eat to maintain, lose or gain weight — using the widely used Mifflin-St Jeor equation.</p>
+  <p class="privacy-note">🔒 Private by design: all calculations run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <div class="two-col">
+      <div>
+        <label>Sex</label>
+        <div class="check-row">
+          <label><input type="radio" name="sex" value="male" checked> Male</label>
+          <label><input type="radio" name="sex" value="female"> Female</label>
+        </div>
+        <label for="age">Age (years)</label>
+        <input type="number" id="age" value="30" min="10" max="100" step="1">
+        <label for="activity">Activity level</label>
+        <select id="activity">
+          <option value="1.2">Sedentary — desk job, little exercise</option>
+          <option value="1.375">Light — exercise 1–3 days/week</option>
+          <option value="1.55" selected>Moderate — exercise 3–5 days/week</option>
+          <option value="1.725">Active — exercise 6–7 days/week</option>
+          <option value="1.9">Athlete — very intense training, physical job</option>
+        </select>
+      </div>
+      <div>
+        <label>Height</label>
+        <div class="check-row">
+          <label><input type="radio" name="heightUnit" value="cm" checked> cm</label>
+          <label><input type="radio" name="heightUnit" value="ftin"> ft / in</label>
+        </div>
+        <div id="heightCmWrap">
+          <input type="number" id="heightCm" value="175" min="0" step="any" placeholder="Height in cm">
+        </div>
+        <div id="heightFtWrap" style="display:none">
+          <div class="two-col">
+            <div><input type="number" id="heightFt" value="5" min="0" step="1" placeholder="Feet"></div>
+            <div><input type="number" id="heightIn" value="9" min="0" step="any" placeholder="Inches"></div>
+          </div>
+        </div>
+        <label>Weight</label>
+        <div class="check-row">
+          <label><input type="radio" name="weightUnit" value="kg" checked> kg</label>
+          <label><input type="radio" name="weightUnit" value="lb"> lb</label>
+        </div>
+        <input type="number" id="weight" value="75" min="0" step="any" placeholder="Your weight">
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="num" id="bmrOut">–</span><span class="lbl">BMR (calories at rest)</span></div>
+      <div class="stat"><span class="num" id="tdeeOut">–</span><span class="lbl">Maintenance (TDEE)</span></div>
+      <div class="stat"><span class="num" id="lossOut">–</span><span class="lbl">Lose weight (−250 / −500)</span></div>
+      <div class="stat"><span class="num" id="gainOut">–</span><span class="lbl">Gain weight (+250 / +500)</span></div>
+    </div>
+    <p class="note">Results are per day. <strong>These figures are estimates for general information only — they are not medical advice.</strong> Speak to a doctor or registered dietitian for personal guidance, especially before starting a diet.</p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Select your sex and enter your age.</li>
+      <li>Enter your height and weight — switch between metric and imperial units any time.</li>
+      <li>Pick the activity level that best matches a typical week.</li>
+      <li>Read your BMR, your maintenance calories, and the loss/gain targets.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is the Mifflin-St Jeor equation?</h3>
+    <p>It is the formula most dietitians consider the most accurate simple estimate of resting calorie burn: for men, BMR = 10 × weight (kg) + 6.25 × height (cm) − 5 × age + 5; for women the same formula ends with − 161 instead of + 5.</p>
+    <h3>What is the difference between BMR and TDEE?</h3>
+    <p>BMR is the energy your body uses at complete rest just to stay alive. TDEE (maintenance calories) multiplies BMR by an activity factor to include movement and exercise — that is the level at which your weight stays roughly the same.</p>
+    <h3>How fast will I lose weight at −500 calories a day?</h3>
+    <p>A 500 kcal daily deficit is roughly 0.45 kg (about 1 lb) per week in theory, because a kilogram of body fat stores around 7,700 kcal. Real results vary with water weight, muscle mass and how activity changes over time.</p>
+    <h3>How accurate is this calculator?</h3>
+    <p>For most people the estimate is within roughly ±10% of measured values. It cannot account for body composition, medical conditions, medication or pregnancy, which is why it is an estimate for general information — not medical advice.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="date-calculator.html">Date Calculator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var ageEl = document.getElementById("age");
+  var activityEl = document.getElementById("activity");
+  var heightCmWrap = document.getElementById("heightCmWrap");
+  var heightFtWrap = document.getElementById("heightFtWrap");
+  var heightCm = document.getElementById("heightCm");
+  var heightFt = document.getElementById("heightFt");
+  var heightIn = document.getElementById("heightIn");
+  var weightEl = document.getElementById("weight");
+  var bmrOut = document.getElementById("bmrOut");
+  var tdeeOut = document.getElementById("tdeeOut");
+  var lossOut = document.getElementById("lossOut");
+  var gainOut = document.getElementById("gainOut");
+  var errorBox = document.getElementById("errorBox");
+
+  function kcal(n) { return Math.round(n).toLocaleString("en-US"); }
+  function checkedVal(name) {
+    var r = document.querySelector('input[name="' + name + '"]:checked');
+    return r ? r.value : "";
+  }
+
+  function calculate() {
+    errorBox.textContent = "";
+    var sex = checkedVal("sex");
+    var age = parseFloat(ageEl.value);
+    var heightUnit = checkedVal("heightUnit");
+    var height;
+    if (heightUnit === "cm") height = parseFloat(heightCm.value);
+    else {
+      var ft = parseFloat(heightFt.value) || 0;
+      var inch = parseFloat(heightIn.value) || 0;
+      height = (ft * 12 + inch) * 2.54;
+    }
+    var wRaw = parseFloat(weightEl.value);
+    var weight = checkedVal("weightUnit") === "lb" ? wRaw * 0.45359237 : wRaw;
+    var mult = parseFloat(activityEl.value);
+
+    if (isNaN(age) || isNaN(height) || isNaN(weight) || age <= 0 || height <= 0 || weight <= 0) {
+      bmrOut.textContent = "–"; tdeeOut.textContent = "–"; lossOut.textContent = "–"; gainOut.textContent = "–";
+      return;
+    }
+    var bmr = 10 * weight + 6.25 * height - 5 * age + (sex === "male" ? 5 : -161);
+    var tdee = bmr * mult;
+    bmrOut.textContent = kcal(bmr);
+    tdeeOut.textContent = kcal(tdee);
+    lossOut.textContent = kcal(tdee - 250) + " / " + kcal(tdee - 500);
+    gainOut.textContent = kcal(tdee + 250) + " / " + kcal(tdee + 500);
+  }
+
+  function syncHeightVisibility() {
+    var unit = checkedVal("heightUnit");
+    heightCmWrap.style.display = unit === "cm" ? "block" : "none";
+    heightFtWrap.style.display = unit === "cm" ? "none" : "block";
+    calculate();
+  }
+
+  [ageEl, activityEl, heightCm, heightFt, heightIn, weightEl].forEach(function (el) {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="sex"], input[name="weightUnit"]'), function (r) {
+    r.addEventListener("change", calculate);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="heightUnit"]'), function (r) {
+    r.addEventListener("change", syncHeightVisibility);
+  });
+  syncHeightVisibility();
+})();
+</script>
+</body>
+</html>

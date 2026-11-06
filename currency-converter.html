@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Converter — Live Exchange Rates for 33 Currencies | QuickTools</title>
+<meta name="description" content="Free currency converter with live exchange rates for 33 currencies including USD, EUR, GBP, PKR, INR and AED. Instant conversion with the current rate — no sign-up.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Currency Converter</h1>
+  <p class="lead">Convert between 33 world currencies at live mid-market exchange rates. Type an amount, pick your currencies, and the result updates instantly.</p>
+  <p class="privacy-note">🔒 Private by design: only the public exchange-rate table is downloaded — the amounts you type never leave your browser.</p>
+
+  <div class="tool-panel">
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" value="1" min="0" step="any">
+    <div class="two-col">
+      <div>
+        <label for="fromCur">From</label>
+        <select id="fromCur"></select>
+      </div>
+      <div>
+        <label for="toCur">To</label>
+        <select id="toCur"></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="swapBtn" type="button">⇅ Swap currencies</button>
+      <button class="btn" id="convertBtn" type="button">Convert</button>
+    </div>
+    <div class="result-box" id="resultBox">Loading live rates…</div>
+    <p class="note" id="rateInfo"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Type the amount you want to convert.</li>
+      <li>Choose the currency you have in <strong>From</strong> and the currency you want in <strong>To</strong>.</li>
+      <li>The converted amount appears instantly — use <strong>Swap</strong> to flip the direction.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Where do the exchange rates come from?</h3>
+    <p>Rates are fetched live from the Open Exchange Rates API (open.er-api.com), which publishes mid-market rates collected from financial data providers. The "Rates updated" line under the result shows when the table was last refreshed.</p>
+    <h3>Why is the rate different at my bank or money changer?</h3>
+    <p>Banks and exchange shops add a margin (spread) and sometimes fees on top of the mid-market rate, so you will usually receive slightly less than the figure shown here. This converter is best for checking the fair, real-world value of a currency.</p>
+    <h3>Does the converter work offline?</h3>
+    <p>No — it needs an internet connection once to download the latest rate table. If the rates fail to load, an error is shown and conversion is disabled rather than guessing with stale numbers.</p>
+    <h3>Are the amounts I enter sent anywhere?</h3>
+    <p>No. Your browser downloads the public rate table, and the maths happens on your device. Nothing you type is transmitted or stored.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="loan-calculator.html">Loan / EMI Calculator</a>
+      <a href="compound-interest.html">Compound Interest Calculator</a>
+      <a href="tip-calculator.html">Tip Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var CURRENCIES = [
+    ["USD", "US Dollar"], ["EUR", "Euro"], ["GBP", "British Pound"],
+    ["PKR", "Pakistani Rupee"], ["INR", "Indian Rupee"], ["AED", "UAE Dirham"],
+    ["SAR", "Saudi Riyal"], ["QAR", "Qatari Riyal"], ["KWD", "Kuwaiti Dinar"],
+    ["BDT", "Bangladeshi Taka"], ["CNY", "Chinese Yuan"], ["JPY", "Japanese Yen"],
+    ["AUD", "Australian Dollar"], ["CAD", "Canadian Dollar"], ["CHF", "Swiss Franc"],
+    ["SGD", "Singapore Dollar"], ["HKD", "Hong Kong Dollar"], ["NZD", "New Zealand Dollar"],
+    ["ZAR", "South African Rand"], ["TRY", "Turkish Lira"], ["MYR", "Malaysian Ringgit"],
+    ["IDR", "Indonesian Rupiah"], ["THB", "Thai Baht"], ["KRW", "South Korean Won"],
+    ["PHP", "Philippine Peso"], ["VND", "Vietnamese Dong"], ["EGP", "Egyptian Pound"],
+    ["NGN", "Nigerian Naira"], ["LKR", "Sri Lankan Rupee"], ["NPR", "Nepalese Rupee"],
+    ["RUB", "Russian Ruble"], ["BRL", "Brazilian Real"], ["MXN", "Mexican Peso"]
+  ];
+  var amount = document.getElementById("amount");
+  var fromCur = document.getElementById("fromCur");
+  var toCur = document.getElementById("toCur");
+  var swapBtn = document.getElementById("swapBtn");
+  var convertBtn = document.getElementById("convertBtn");
+  var resultBox = document.getElementById("resultBox");
+  var rateInfo = document.getElementById("rateInfo");
+  var errorBox = document.getElementById("errorBox");
+
+  var rates = null; // per 1 USD, from the API
+  var ratesUpdatedText = "";
+
+  CURRENCIES.forEach(function (c) {
+    var o1 = document.createElement("option"); o1.value = c[0]; o1.textContent = c[0] + " — " + c[1];
+    var o2 = document.createElement("option"); o2.value = c[0]; o2.textContent = c[0] + " — " + c[1];
+    fromCur.appendChild(o1); toCur.appendChild(o2);
+  });
+  fromCur.value = "USD";
+  toCur.value = "PKR";
+
+  function fmt(n, maxDec) {
+    return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: maxDec != null ? maxDec : 2 });
+  }
+  function showError(msg) { errorBox.textContent = msg || ""; }
+
+  function convert() {
+    if (!rates) return;
+    var amt = parseFloat(amount.value);
+    if (isNaN(amt) || amt < 0) { resultBox.textContent = "Enter a valid amount."; rateInfo.textContent = ""; return; }
+    var from = fromCur.value, to = toCur.value;
+    if (!rates[from] || !rates[to]) { showError("Rate not available for the selected currency."); return; }
+    var inUsd = amt / rates[from];
+    var out = inUsd * rates[to];
+    var unit = rates[to] / rates[from];
+    resultBox.textContent = fmt(amt) + " " + from + " = " + fmt(out) + " " + to;
+    rateInfo.textContent = "1 " + from + " = " + unit.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 6 }) + " " + to + ratesUpdatedText;
+  }
+
+  function setEnabled(on) {
+    convertBtn.disabled = !on;
+    swapBtn.disabled = !on;
+    amount.disabled = !on;
+    fromCur.disabled = !on;
+    toCur.disabled = !on;
+  }
+
+  setEnabled(false);
+  fetch("https://open.er-api.com/v6/latest/USD")
+    .then(function (res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+    .then(function (data) {
+      if (!data || data.result !== "success" || !data.rates) throw new Error("Unexpected response");
+      rates = data.rates;
+      if (data.time_last_update_utc) ratesUpdatedText = " · Rates updated: " + data.time_last_update_utc.replace(" GMT", " UTC");
+      setEnabled(true);
+      convert();
+    })
+    .catch(function () {
+      resultBox.textContent = "";
+      showError("Live exchange rates could not be loaded. Check your internet connection and reload the page — conversion is disabled rather than using out-of-date rates.");
+    });
+
+  convertBtn.addEventListener("click", convert);
+  amount.addEventListener("input", convert);
+  fromCur.addEventListener("change", convert);
+  toCur.addEventListener("change", convert);
+  swapBtn.addEventListener("click", function () {
+    var t = fromCur.value;
+    fromCur.value = toCur.value;
+    toCur.value = t;
+    convert();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Compressor — Compress MP4 Online Free, In Your Browser | QuickTools</title>
+<meta name="description" content="Compress video files to MP4 online for free, entirely in your browser with ffmpeg. Choose 720p, 480p or 360p and a quality level — your video is never uploaded to a server.">
+<link rel="stylesheet" href="style.css">
+<style>
+.progress{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:14px 0 4px}
+.progress-fill{height:100%;width:0;background:var(--blue);transition:width .2s linear}
+video.preview-video{width:100%;max-height:360px;border:1px solid var(--border);border-radius:8px;background:#000}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Video Compressor</h1>
+  <p class="lead">Shrink a video for WhatsApp, email or uploads. Pick a smaller resolution and quality level, and get a compact MP4 — processed entirely on your own device.</p>
+  <p class="privacy-note">🔒 Private by design: compression runs on your device with ffmpeg in your browser — your video is never uploaded to a server. Because everything happens locally it can be slow, and large files are hard work for a browser: files under about 200&nbsp;MB are recommended, and a desktop browser works best.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a video here, or click to choose a file</div>
+      <div>MP4, WebM, MOV and other common formats · under ~200 MB recommended</div>
+      <input type="file" id="fileInput" accept="video/*">
+    </div>
+
+    <div id="controls" style="display:none">
+      <p class="note" id="fileInfo" style="margin-top:14px"></p>
+      <div class="two-col">
+        <div>
+          <label for="scaleSelect">Resolution</label>
+          <select id="scaleSelect">
+            <option value="0">Original — keep the same size</option>
+            <option value="720">720p — good for sharing</option>
+            <option value="480" selected>480p — small and clear</option>
+            <option value="360">360p — smallest files</option>
+          </select>
+        </div>
+        <div>
+          <label for="qualitySelect">Quality</label>
+          <select id="qualitySelect">
+            <option value="23">High quality (CRF 23)</option>
+            <option value="28" selected>Balanced (CRF 28)</option>
+            <option value="32">Small file (CRF 32)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="compressBtn" type="button">🗜 Compress video</button>
+      </div>
+      <div id="progressWrap" style="display:none">
+        <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="note" id="progressText">Working…</p>
+      </div>
+      <div id="resultWrap" style="display:none">
+        <div class="preview-wrap">
+          <video id="resultVideo" class="preview-video" controls playsinline></video>
+        </div>
+        <div class="stats">
+          <div class="stat"><span class="num" id="origInfo">–</span><span class="lbl">Original</span></div>
+          <div class="stat"><span class="num" id="newInfo">–</span><span class="lbl">Compressed MP4</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="downloadBtn" type="button">⬇ Download compressed video</button>
+        </div>
+      </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your video into the box, or click to browse (under ~200 MB works best).</li>
+      <li>Choose a resolution — 480p is a good balance for messaging apps — and a quality level.</li>
+      <li>Click <strong>Compress video</strong> and wait; the first run also downloads the ffmpeg engine.</li>
+      <li>Preview the result, compare the sizes, and click <strong>Download</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How can a browser compress video without a server?</h3>
+    <p>The page loads ffmpeg — the industry-standard video tool — compiled to WebAssembly (ffmpeg.wasm). It runs entirely on your device, which is why nothing is uploaded and why big files take a while: your phone or computer does all the work a server would normally do.</p>
+    <h3>What do the quality settings (CRF) mean?</h3>
+    <p>CRF is the H.264 quality scale: lower numbers mean better quality and bigger files. 23 is high quality, 28 is a balanced default, and 32 squeezes the file much smaller with visibly softer detail. Combined with a lower resolution, it is the fastest way to shrink a video for messaging apps.</p>
+    <h3>Will the resolution setting make my video bigger?</h3>
+    <p>No. The scale step only ever shrinks: if your video is already smaller than the chosen height, it is kept as it is rather than upscaled.</p>
+    <h3>Why is it slow, and why do you recommend under 200 MB?</h3>
+    <p>The browser holds the whole file in memory and encodes with a single processing thread, so long or very large videos can take minutes and may run out of memory on phones. For files over ~200 MB, a desktop app will be far quicker and more reliable.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="resize-image.html">Image Resizer</a>
+      <a href="remove-background.html">Background Remover</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script type="module">
+const FFMPEG_ESM = "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js";
+const UTIL_ESM = "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js";
+const CORE_BASE = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm";
+
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+const controls = document.getElementById("controls");
+const fileInfo = document.getElementById("fileInfo");
+const scaleSelect = document.getElementById("scaleSelect");
+const qualitySelect = document.getElementById("qualitySelect");
+const compressBtn = document.getElementById("compressBtn");
+const progressWrap = document.getElementById("progressWrap");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const resultWrap = document.getElementById("resultWrap");
+const resultVideo = document.getElementById("resultVideo");
+const origInfo = document.getElementById("origInfo");
+const newInfo = document.getElementById("newInfo");
+const downloadBtn = document.getElementById("downloadBtn");
+const errorBox = document.getElementById("errorBox");
+
+let ffmpeg = null;
+let ffmpegLoaded = false;
+let utilMod = null;
+let currentFile = null;
+let baseName = "video";
+let resultUrl = null;
+
+function formatBytes(bytes) {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
+  return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+}
+function showError(msg) { errorBox.textContent = msg || ""; }
+function extOf(name) {
+  const m = /\.([A-Za-z0-9]+)$/.exec(name || "");
+  return m ? "." + m[1].toLowerCase() : ".mp4";
+}
+
+function loadFile(file) {
+  showError("");
+  if (!file) return;
+  if (file.type && file.type.indexOf("video/") !== 0) {
+    showError("Please choose a video file.");
+    return;
+  }
+  currentFile = file;
+  baseName = file.name.replace(/\.[^.]+$/, "") || "video";
+  fileInfo.textContent = "Selected: " + file.name + " (" + formatBytes(file.size) + ")";
+  origInfo.textContent = formatBytes(file.size);
+  resultWrap.style.display = "none";
+  progressWrap.style.display = "none";
+  controls.style.display = "block";
+}
+
+dropzone.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+dropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropzone.classList.remove("dragover");
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+async function ensureFfmpeg() {
+  if (ffmpegLoaded) return;
+  progressText.textContent = "Downloading the ffmpeg engine (first run only)…";
+  const ffmpegMod = await import(FFMPEG_ESM);
+  utilMod = await import(UTIL_ESM);
+  ffmpeg = new ffmpegMod.FFmpeg();
+  ffmpeg.on("progress", ({ progress }) => {
+    const pct = Math.max(0, Math.min(100, Math.round(progress * 100)));
+    progressFill.style.width = pct + "%";
+    progressText.textContent = "Compressing… " + pct + "%";
+  });
+  await ffmpeg.load({
+    coreURL: await utilMod.toBlobURL(CORE_BASE + "/ffmpeg-core.js", "text/javascript"),
+    wasmURL: await utilMod.toBlobURL(CORE_BASE + "/ffmpeg-core.wasm", "application/wasm")
+  });
+  ffmpegLoaded = true;
+}
+
+compressBtn.addEventListener("click", async () => {
+  if (!currentFile) return;
+  showError("");
+  compressBtn.disabled = true;
+  compressBtn.textContent = "Working…";
+  resultWrap.style.display = "none";
+  progressWrap.style.display = "block";
+  progressFill.style.width = "0%";
+  const inName = "input" + extOf(currentFile.name);
+  const outName = "output.mp4";
+  try {
+    await ensureFfmpeg();
+    progressText.textContent = "Reading your video…";
+    await ffmpeg.writeFile(inName, await utilMod.fetchFile(currentFile));
+    const args = ["-i", inName];
+    const h = parseInt(scaleSelect.value, 10);
+    if (h > 0) args.push("-vf", "scale=-2:min(" + h + ",ih)");
+    args.push("-c:v", "libx264", "-preset", "veryfast", "-crf", qualitySelect.value,
+              "-c:a", "aac", "-b:a", "128k", outName);
+    progressText.textContent = "Compressing… 0%";
+    const code = await ffmpeg.exec(args);
+    if (code !== 0) throw new Error("ffmpeg exited with code " + code);
+    const data = await ffmpeg.readFile(outName);
+    const blob = new Blob([data], { type: "video/mp4" });
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resultUrl = URL.createObjectURL(blob);
+    resultVideo.src = resultUrl;
+    const saved = currentFile.size > 0 ? Math.round((1 - blob.size / currentFile.size) * 100) : 0;
+    newInfo.textContent = formatBytes(blob.size) + (saved > 0 ? " (−" + saved + "%)" : "");
+    progressWrap.style.display = "none";
+    resultWrap.style.display = "block";
+  } catch (err) {
+    progressWrap.style.display = "none";
+    showError("Video compression failed. The ffmpeg engine could not be loaded or could not process this file — try a smaller file, a common format (MP4/WebM), and a desktop browser. (" + (err && err.message ? err.message : "unknown error") + ")");
+  } finally {
+    if (ffmpeg && ffmpegLoaded) {
+      try { await ffmpeg.deleteFile(inName); } catch (e) { /* already gone */ }
+      try { await ffmpeg.deleteFile(outName); } catch (e) { /* already gone */ }
+    }
+    compressBtn.disabled = false;
+    compressBtn.textContent = "🗜 Compress video";
+  }
+});
+
+downloadBtn.addEventListener("click", () => {
+  if (!resultUrl) return;
+  const a = document.createElement("a");
+  a.href = resultUrl;
+  a.download = baseName + "-compressed.mp4";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+</script>
+</body>
+</html>

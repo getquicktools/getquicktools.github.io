@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Test — 60 Second WPM Test with Accuracy Score | QuickTools</title>
+<meta name="description" content="Free 60-second typing speed test: live WPM and accuracy while you type, with gross WPM, net WPM and correct/incorrect character counts at the end. No sign-up.">
+<link rel="stylesheet" href="style.css">
+<style>
+.sample-text{font-size:1.18rem;line-height:1.9;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:Georgia,'Times New Roman',serif;user-select:none}
+.sample-text .ch{border-radius:3px}
+.sample-text .ch.correct{color:#16a34a}
+.sample-text .ch.incorrect{color:#b91c1c;background:#fee2e2}
+.sample-text .ch.current{border-bottom:3px solid var(--blue)}
+.timer-big{font-size:1.5rem;font-weight:800;color:var(--blue-dark)}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Typing Speed Test</h1>
+  <p class="lead">How fast can you type? Start typing the text below — the 60-second clock starts on your first keystroke, and your speed (WPM) and accuracy update live.</p>
+  <p class="privacy-note">🔒 Private by design: the test runs locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span>Time left: <span class="timer-big" id="timeLeft">60</span>s</span>
+      <span class="note">Live: <strong id="liveWpm">0</strong> WPM · <strong id="liveAcc">100</strong>% accuracy</span>
+    </div>
+    <div class="sample-text" id="sampleText" style="margin-top:14px"></div>
+    <label for="typingInput">Type here</label>
+    <textarea id="typingInput" rows="3" placeholder="Start typing the text above…" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+    <div class="result-box" id="resultBox"></div>
+    <div class="btn-row">
+      <button class="btn" id="restartBtn" type="button">↻ Restart with a new text</button>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Click the typing box and start typing the paragraph exactly as shown — the timer starts on your first character.</li>
+      <li>Correct letters turn green; mistakes turn red. The live WPM and accuracy update as you go.</li>
+      <li>When 60 seconds run out (or you finish the paragraph) your final scores appear: gross WPM, net WPM, accuracy and character counts.</li>
+      <li>Press <strong>Restart</strong> to try again with a different text.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How is WPM calculated?</h3>
+    <p>By the standard convention of 5 characters = 1 word. Gross WPM counts every character you typed; net WPM counts only correct characters, so it rewards accuracy as well as speed. Both are divided by the time taken, in minutes.</p>
+    <h3>What is a good typing speed?</h3>
+    <p>The average person types around 40 WPM. 55–70 WPM is fast and typical of experienced office workers, and professional typists often exceed 80–100 WPM. Accuracy above 95% matters more than raw speed for real work.</p>
+    <h3>Can I paste text into the box?</h3>
+    <p>No — pasting is disabled, because that would measure your clipboard, not your typing. Backspace works normally if you want to correct a mistake.</p>
+    <h3>Why did the test end before 60 seconds?</h3>
+    <p>If you type the whole paragraph correctly to the end, the test finishes early and your scores are calculated from the actual time you used.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="stopwatch-timer.html">Stopwatch &amp; Timer</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var TEXTS = [
+    "The quick brown fox jumps over the lazy dog while the morning sun climbs above the quiet hills. Birds call from the dark pine trees, and a soft wind moves through the tall grass near the river. Every small sound of the valley seems clear and close, as if the whole world has just woken up and is ready for a brand new day of work, travel, and simple wonder.",
+    "Good software is not built in a single day. It grows line by line, test by test, as patient people solve one small problem after another. A clear plan, honest feedback, and steady habits matter far more than talent alone. When a program finally works, the reward is not only the result on the screen, but the quiet pride of having made something useful with your own two hands.",
+    "Markets open early in the old city, long before the heat of the day arrives. Traders arrange bright piles of oranges, grapes, and melons while bakers carry warm bread from the ovens. The smell of coffee and spices drifts through the narrow streets, and every stall keeper greets the first customers with a smile, hopeful that today will bring fair prices and good fortune.",
+    "Learning a new language takes courage, because every sentence is a small adventure. At first the words feel strange in your mouth, and grammar rules seem endless. But little by little, songs begin to make sense, jokes become funny, and strangers turn into friends. The secret is simple: practise a little every day, forgive your mistakes, and never be afraid to speak."
+  ];
+  var DURATION = 60;
+
+  var sampleEl = document.getElementById("sampleText");
+  var inputEl = document.getElementById("typingInput");
+  var timeLeftEl = document.getElementById("timeLeft");
+  var liveWpmEl = document.getElementById("liveWpm");
+  var liveAccEl = document.getElementById("liveAcc");
+  var resultBox = document.getElementById("resultBox");
+  var restartBtn = document.getElementById("restartBtn");
+
+  var text = "";
+  var spans = [];
+  var started = false;
+  var finished = false;
+  var startTime = 0;
+  var timer = null;
+  var lastIndex = -1;
+
+  function pickText(except) {
+    var i;
+    do { i = Math.floor(Math.random() * TEXTS.length); } while (TEXTS.length > 1 && TEXTS[i] === except);
+    return TEXTS[i];
+  }
+  function renderSample() {
+    sampleEl.innerHTML = "";
+    spans = [];
+    text.split("").forEach(function (ch) {
+      var s = document.createElement("span");
+      s.className = "ch";
+      s.textContent = ch;
+      sampleEl.appendChild(s);
+      spans.push(s);
+    });
+    if (spans.length) spans[0].classList.add("current");
+  }
+  function counts() {
+    var typed = inputEl.value;
+    var correct = 0;
+    for (var i = 0; i < typed.length && i < text.length; i++) {
+      if (typed[i] === text[i]) correct++;
+    }
+    return { typed: typed.length, correct: correct, incorrect: typed.length - correct };
+  }
+  function paint() {
+    var typed = inputEl.value;
+    for (var i = 0; i < spans.length; i++) {
+      spans[i].classList.remove("correct", "incorrect", "current");
+      if (i < typed.length) spans[i].classList.add(typed[i] === text[i] ? "correct" : "incorrect");
+    }
+    if (!finished && typed.length < spans.length) spans[typed.length].classList.add("current");
+  }
+  function updateLive() {
+    var c = counts();
+    var elapsedMin = started ? (Date.now() - startTime) / 60000 : 0;
+    var gross = elapsedMin > 0 ? Math.round((c.typed / 5) / elapsedMin) : 0;
+    var acc = c.typed > 0 ? Math.round(c.correct / c.typed * 100) : 100;
+    liveWpmEl.textContent = gross;
+    liveAccEl.textContent = acc;
+  }
+  function finish(reason) {
+    if (finished) return;
+    finished = true;
+    if (timer) { clearInterval(timer); timer = null; }
+    inputEl.disabled = true;
+    var c = counts();
+    var elapsedMin = Math.max((Date.now() - startTime) / 60000, 1 / 600);
+    var gross = Math.round((c.typed / 5) / elapsedMin);
+    var net = Math.round((c.correct / 5) / elapsedMin);
+    var acc = c.typed > 0 ? (c.correct / c.typed * 100) : 100;
+    resultBox.innerHTML =
+      "<strong>" + (reason === "complete" ? "Paragraph complete! " : "Time up! ") + "Your results:</strong><br>" +
+      "Gross WPM: <strong>" + gross + "</strong> · Net WPM: <strong>" + net + "</strong> · Accuracy: <strong>" + acc.toFixed(1) + "%</strong><br>" +
+      "Characters: " + c.typed + " typed — <span style='color:#16a34a'>" + c.correct + " correct</span>, <span style='color:#b91c1c'>" + c.incorrect + " incorrect</span>";
+    paint();
+  }
+  function tick() {
+    var remaining = DURATION - (Date.now() - startTime) / 1000;
+    if (remaining <= 0) {
+      timeLeftEl.textContent = "0";
+      finish("time");
+      return;
+    }
+    timeLeftEl.textContent = Math.ceil(remaining);
+    updateLive();
+  }
+  function start() {
+    text = pickText(lastIndex >= 0 ? TEXTS[lastIndex] : null);
+    lastIndex = TEXTS.indexOf(text);
+    started = false; finished = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    inputEl.value = "";
+    inputEl.disabled = false;
+    timeLeftEl.textContent = String(DURATION);
+    liveWpmEl.textContent = "0";
+    liveAccEl.textContent = "100";
+    resultBox.innerHTML = "";
+    renderSample();
+  }
+
+  inputEl.addEventListener("input", function () {
+    if (finished) return;
+    if (!started) {
+      started = true;
+      startTime = Date.now();
+      timer = setInterval(tick, 200);
+    }
+    paint();
+    updateLive();
+    if (inputEl.value.length >= text.length) finish("complete");
+  });
+  inputEl.addEventListener("paste", function (e) { e.preventDefault(); });
+  restartBtn.addEventListener("click", function () { start(); inputEl.focus(); });
+
+  start();
+})();
+</script>
+</body>
+</html>

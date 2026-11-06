@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Background Remover — Remove Image Background Online Free (AI) | QuickTools</title>
+<meta name="description" content="Remove the background from JPG, PNG and WebP photos with on-device AI. First use downloads the AI model, then everything runs in your browser — your image is never uploaded.">
+<link rel="stylesheet" href="style.css">
+<style>
+.progress{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:14px 0 4px}
+.progress-fill{height:100%;width:0;background:var(--blue);transition:width .2s linear}
+.checker{background:repeating-conic-gradient(#e2e8f0 0% 25%,#ffffff 0% 50%) 0 0/22px 22px}
+.preview-wrap img.checker{border:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Background Remover</h1>
+  <p class="lead">Remove the background from a photo with AI and download a transparent PNG — for product shots, profile pictures, stickers and design work.</p>
+  <p class="privacy-note">🔒 Private by design: your image is processed on your own device and is never uploaded to a server. On first use the tool downloads its AI model (tens of MB) once from the library's CDN — after that, everything runs locally. Processing can take a while on phones, so please be patient.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop an image here, or click to choose a file</div>
+      <div>Accepts JPG, PNG and WebP</div>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
+    </div>
+
+    <div id="controls" style="display:none">
+      <div class="preview-wrap">
+        <p class="note" style="margin:0 0 6px">Original</p>
+        <img id="origPreview" alt="Original image preview">
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="removeBtn" type="button">✂ Remove background</button>
+      </div>
+      <div id="progressWrap" style="display:none">
+        <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+        <p class="note" id="progressText">Working…</p>
+      </div>
+      <div id="resultWrap" style="display:none">
+        <div class="preview-wrap">
+          <p class="note" style="margin:0 0 6px">Background removed (the chequered pattern shows transparency)</p>
+          <img id="resultPreview" class="checker" alt="Image with background removed">
+        </div>
+        <div class="stats">
+          <div class="stat"><span class="num" id="origInfo">–</span><span class="lbl">Original</span></div>
+          <div class="stat"><span class="num" id="newInfo">–</span><span class="lbl">Transparent PNG</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="downloadBtn" type="button">⬇ Download PNG</button>
+        </div>
+      </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop a JPG, PNG or WebP image into the box, or click to browse.</li>
+      <li>Click <strong>Remove background</strong>. The first time, the AI model downloads (tens of MB) — this happens only once.</li>
+      <li>Wait for processing to finish; watch the progress bar.</li>
+      <li>Check the transparent preview and click <strong>Download PNG</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How does the background removal work?</h3>
+    <p>An AI segmentation model (the open-source @imgly/background-removal library) runs entirely in your browser, detects the main subject, and produces a PNG with a transparent background. Your image is never sent to our servers — there are none.</p>
+    <h3>Why is the first use slow?</h3>
+    <p>The AI model files (tens of MB) must be downloaded from the library's CDN the first time, and the model itself needs a few seconds to run — especially on phones. Later uses in the same visit are faster because the model stays loaded.</p>
+    <h3>What kinds of photos work best?</h3>
+    <p>Photos with one clear subject and a distinct outline — people, products, pets, cars — work best. Hair, glass, smoke and subjects that blend into a similar-coloured background can leave rough edges, as with any automatic tool.</p>
+    <h3>Why is the download always a PNG?</h3>
+    <p>Transparency requires a format with an alpha channel. PNG is the universal choice; JPG cannot store transparency at all, so removed backgrounds are always delivered as PNG.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="resize-image.html">Image Resizer</a>
+      <a href="video-compressor.html">Video Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script type="module">
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+const controls = document.getElementById("controls");
+const origPreview = document.getElementById("origPreview");
+const removeBtn = document.getElementById("removeBtn");
+const progressWrap = document.getElementById("progressWrap");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const resultWrap = document.getElementById("resultWrap");
+const resultPreview = document.getElementById("resultPreview");
+const origInfo = document.getElementById("origInfo");
+const newInfo = document.getElementById("newInfo");
+const downloadBtn = document.getElementById("downloadBtn");
+const errorBox = document.getElementById("errorBox");
+
+const LIB_URL = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm";
+let removeBackgroundFn = null;
+let currentFile = null;
+let baseName = "image";
+let resultUrl = null;
+
+function formatBytes(bytes) {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
+  return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+}
+function showError(msg) { errorBox.textContent = msg || ""; }
+
+function loadFile(file) {
+  showError("");
+  if (!file) return;
+  if (["image/png", "image/jpeg", "image/webp"].indexOf(file.type) === -1) {
+    showError("Please choose a JPG, PNG or WebP image.");
+    return;
+  }
+  currentFile = file;
+  baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+  origInfo.textContent = formatBytes(file.size);
+  origPreview.src = URL.createObjectURL(file);
+  resultWrap.style.display = "none";
+  progressWrap.style.display = "none";
+  controls.style.display = "block";
+}
+
+dropzone.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+dropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropzone.classList.remove("dragover");
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+removeBtn.addEventListener("click", async () => {
+  if (!currentFile) return;
+  showError("");
+  removeBtn.disabled = true;
+  removeBtn.textContent = "Working…";
+  resultWrap.style.display = "none";
+  progressWrap.style.display = "block";
+  progressFill.style.width = "0%";
+  progressText.textContent = "Loading the AI library…";
+  try {
+    if (!removeBackgroundFn) {
+      const mod = await import(LIB_URL);
+      if (!mod || typeof mod.removeBackground !== "function") throw new Error("library shape");
+      removeBackgroundFn = mod.removeBackground;
+    }
+    progressText.textContent = "Processing — the first run also downloads the AI model (tens of MB)…";
+    const blob = await removeBackgroundFn(currentFile, {
+      progress: (key, current, total) => {
+        if (total && total > 0) {
+          const pct = Math.min(100, Math.round((current / total) * 100));
+          progressFill.style.width = pct + "%";
+          progressText.textContent = "Working… " + pct + "%";
+        }
+      },
+      output: { format: "image/png" }
+    });
+    if (!blob) throw new Error("empty result");
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resultUrl = URL.createObjectURL(blob);
+    resultPreview.src = resultUrl;
+    newInfo.textContent = formatBytes(blob.size);
+    progressWrap.style.display = "none";
+    resultWrap.style.display = "block";
+  } catch (err) {
+    progressWrap.style.display = "none";
+    showError("Background removal failed. The AI library or its model could not be loaded or run — check your internet connection and try again, ideally on a desktop browser. (" + (err && err.message ? err.message : "unknown error") + ")");
+  } finally {
+    removeBtn.disabled = false;
+    removeBtn.textContent = "✂ Remove background";
+  }
+});
+
+downloadBtn.addEventListener("click", () => {
+  if (!resultUrl) return;
+  const a = document.createElement("a");
+  a.href = resultUrl;
+  a.download = baseName + "-no-background.png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+</script>
+</body>
+</html>

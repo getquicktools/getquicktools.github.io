@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch & Countdown Timer — Online, with Laps and Alarm | QuickTools</title>
+<meta name="description" content="Free online stopwatch with laps and a countdown timer with an audible beep. Precise to hundredths of a second, runs entirely in your browser — great for workouts, cooking and study.">
+<link rel="stylesheet" href="style.css">
+<style>
+.clock{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:3rem;font-weight:800;text-align:center;letter-spacing:1px;margin:6px 0 4px}
+.progress{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:14px 0 4px}
+.progress-fill{height:100%;width:0;background:var(--blue);transition:width .2s linear}
+.laps{list-style:none;margin:14px 0 0;padding:0;max-height:220px;overflow-y:auto}
+.laps li{display:flex;justify-content:space-between;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:7px 12px;margin-bottom:6px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95rem}
+.time-inputs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.clock{font-size:2.2rem}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Stopwatch &amp; Countdown Timer</h1>
+  <p class="lead">A precise stopwatch with lap times, and a countdown timer that beeps when it reaches zero. Both run in this tab — for workouts, cooking, exams and focus sessions.</p>
+  <p class="privacy-note">🔒 Private by design: both timers run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <h2>⏱️ Stopwatch</h2>
+    <div class="clock" id="swDisplay">00:00.00</div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn" id="swToggle" type="button">Start</button>
+      <button class="btn btn-secondary" id="swLap" type="button" disabled>Lap</button>
+      <button class="btn btn-secondary" id="swReset" type="button" disabled>Reset</button>
+    </div>
+    <ul class="laps" id="swLaps"></ul>
+  </div>
+
+  <div class="tool-panel">
+    <h2>⏳ Countdown timer</h2>
+    <div class="time-inputs">
+      <div>
+        <label for="cdMinutes">Minutes</label>
+        <input type="number" id="cdMinutes" value="5" min="0" max="999" step="1">
+      </div>
+      <div>
+        <label for="cdSeconds">Seconds</label>
+        <input type="number" id="cdSeconds" value="0" min="0" max="59" step="1">
+      </div>
+    </div>
+    <div class="clock" id="cdDisplay">05:00</div>
+    <div class="progress"><div class="progress-fill" id="cdProgress"></div></div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn" id="cdToggle" type="button">Start</button>
+      <button class="btn btn-secondary" id="cdReset" type="button">Reset</button>
+    </div>
+    <p class="note" style="text-align:center">A beep sounds when the countdown finishes — keep this tab open and your sound on.</p>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li><strong>Stopwatch:</strong> press Start, use Lap to record split times, and Reset to clear.</li>
+      <li><strong>Countdown:</strong> set the minutes and seconds, press Start, and watch the progress bar fill.</li>
+      <li>Pause either timer at any point and resume where you left off.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How accurate is the stopwatch?</h3>
+    <p>It is timed from your device's high-resolution clock and displayed to hundredths of a second, so it is as accurate as a typical phone stopwatch. The display refreshes about 30 times per second.</p>
+    <h3>Will the countdown beep if I switch to another tab?</h3>
+    <p>The timer keeps counting in the background, but browsers may delay the beep slightly in an inactive tab, and a muted device will not make a sound. For important alarms, keep the tab visible and the volume up.</p>
+    <h3>What is a lap time?</h3>
+    <p>Each lap records the total elapsed time at the moment you press Lap, plus the time since the previous lap (shown in brackets) — the standard way to track intervals in running, swimming or cooking steps.</p>
+    <h3>Is there a maximum time?</h3>
+    <p>The stopwatch counts for as long as the tab stays open (minutes simply keep growing past 59). The countdown accepts up to 999 minutes plus 59 seconds.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="typing-test.html">Typing Test</a>
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+      <a href="word-counter.html">Word Counter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function fmtStopwatch(ms) {
+    var totalCs = Math.floor(ms / 10);
+    var cs = totalCs % 100;
+    var totalSec = Math.floor(totalCs / 100);
+    var sec = totalSec % 60;
+    var min = Math.floor(totalSec / 60);
+    return pad2(min) + ":" + pad2(sec) + "." + pad2(cs);
+  }
+  function fmtCountdown(sec) {
+    sec = Math.max(0, Math.ceil(sec));
+    return pad2(Math.floor(sec / 60)) + ":" + pad2(sec % 60);
+  }
+
+  /* ---------- Stopwatch ---------- */
+  var swDisplay = document.getElementById("swDisplay");
+  var swToggle = document.getElementById("swToggle");
+  var swLapBtn = document.getElementById("swLap");
+  var swReset = document.getElementById("swReset");
+  var swLaps = document.getElementById("swLaps");
+  var swRunning = false, swStart = 0, swElapsed = 0, swTimer = null, swLapCount = 0, swLastLap = 0;
+
+  function swRender() { swDisplay.textContent = fmtStopwatch(swElapsed + (swRunning ? performance.now() - swStart : 0)); }
+  function swNow() { return swElapsed + (swRunning ? performance.now() - swStart : 0); }
+
+  swToggle.addEventListener("click", function () {
+    if (swRunning) {
+      swElapsed += performance.now() - swStart;
+      swRunning = false;
+      clearInterval(swTimer);
+      swToggle.textContent = "Resume";
+      swLapBtn.disabled = true;
+    } else {
+      swStart = performance.now();
+      swRunning = true;
+      swTimer = setInterval(swRender, 31);
+      swToggle.textContent = "Pause";
+      swLapBtn.disabled = false;
+      swReset.disabled = false;
+    }
+    swRender();
+  });
+  swLapBtn.addEventListener("click", function () {
+    var now = swNow();
+    swLapCount++;
+    var li = document.createElement("li");
+    var left = document.createElement("span"); left.textContent = "Lap " + swLapCount;
+    var right = document.createElement("span");
+    right.textContent = fmtStopwatch(now) + "  (+" + fmtStopwatch(now - swLastLap) + ")";
+    li.appendChild(left); li.appendChild(right);
+    swLaps.insertBefore(li, swLaps.firstChild);
+    swLastLap = now;
+  });
+  swReset.addEventListener("click", function () {
+    clearInterval(swTimer);
+    swRunning = false; swElapsed = 0; swLapCount = 0; swLastLap = 0;
+    swLaps.innerHTML = "";
+    swToggle.textContent = "Start";
+    swLapBtn.disabled = true;
+    swReset.disabled = true;
+    swRender();
+  });
+  swRender();
+
+  /* ---------- Countdown ---------- */
+  var cdMinutes = document.getElementById("cdMinutes");
+  var cdSeconds = document.getElementById("cdSeconds");
+  var cdDisplay = document.getElementById("cdDisplay");
+  var cdProgress = document.getElementById("cdProgress");
+  var cdToggle = document.getElementById("cdToggle");
+  var cdReset = document.getElementById("cdReset");
+  var cdRunning = false, cdTimer = null, cdEndAt = 0, cdRemaining = 0, cdTotal = 0;
+  var originalTitle = document.title;
+  var titleFlash = null;
+
+  function cdReadInputs() {
+    var m = parseInt(cdMinutes.value, 10) || 0;
+    var s = parseInt(cdSeconds.value, 10) || 0;
+    m = Math.min(999, Math.max(0, m));
+    s = Math.min(59, Math.max(0, s));
+    return m * 60 + s;
+  }
+  function cdRender(remaining, total) {
+    cdDisplay.textContent = fmtCountdown(remaining);
+    var pct = total > 0 ? Math.min(100, Math.max(0, (1 - remaining / total) * 100)) : 0;
+    cdProgress.style.width = pct + "%";
+  }
+  function stopTitleFlash() {
+    if (titleFlash) { clearInterval(titleFlash); titleFlash = null; }
+    document.title = originalTitle;
+  }
+  function beep() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      var ctx = new AC();
+      [0, 0.35, 0.7].forEach(function (offset) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + offset);
+        gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + offset + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + offset + 0.28);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + offset);
+        osc.stop(ctx.currentTime + offset + 0.3);
+      });
+      setTimeout(function () { if (ctx.state !== "closed") ctx.close(); }, 1600);
+    } catch (e) { /* audio not available — the title flash still signals the end */ }
+  }
+  function cdFinish() {
+    clearInterval(cdTimer);
+    cdRunning = false;
+    cdRemaining = 0;
+    cdToggle.textContent = "Start";
+    cdMinutes.disabled = false; cdSeconds.disabled = false;
+    cdRender(0, cdTotal);
+    beep();
+    document.title = "⏰ Time's up! — QuickTools";
+    var showAlt = false;
+    titleFlash = setInterval(function () {
+      showAlt = !showAlt;
+      document.title = showAlt ? originalTitle : "⏰ Time's up! — QuickTools";
+    }, 900);
+  }
+  function cdTick() {
+    cdRemaining = (cdEndAt - Date.now()) / 1000;
+    if (cdRemaining <= 0) { cdFinish(); return; }
+    cdRender(cdRemaining, cdTotal);
+  }
+  cdToggle.addEventListener("click", function () {
+    stopTitleFlash();
+    if (cdRunning) {
+      cdRemaining = (cdEndAt - Date.now()) / 1000;
+      clearInterval(cdTimer);
+      cdRunning = false;
+      cdToggle.textContent = "Resume";
+      return;
+    }
+    if (cdRemaining <= 0) {
+      cdTotal = cdReadInputs();
+      if (cdTotal <= 0) return;
+      cdRemaining = cdTotal;
+    }
+    cdEndAt = Date.now() + cdRemaining * 1000;
+    cdRunning = true;
+    cdToggle.textContent = "Pause";
+    cdMinutes.disabled = true; cdSeconds.disabled = true;
+    cdTimer = setInterval(cdTick, 200);
+    cdTick();
+  });
+  function cdResetFn() {
+    clearInterval(cdTimer);
+    stopTitleFlash();
+    cdRunning = false;
+    cdRemaining = 0; cdTotal = cdReadInputs();
+    cdToggle.textContent = "Start";
+    cdMinutes.disabled = false; cdSeconds.disabled = false;
+    cdRender(cdTotal, cdTotal);
+  }
+  cdReset.addEventListener("click", cdResetFn);
+  [cdMinutes, cdSeconds].forEach(function (el) {
+    el.addEventListener("input", function () { if (!cdRunning) { cdRemaining = 0; cdTotal = cdReadInputs(); cdRender(cdTotal, cdTotal); } });
+  });
+  cdTotal = cdReadInputs();
+  cdRender(cdTotal, cdTotal);
+})();
+</script>
+</body>
+</html>

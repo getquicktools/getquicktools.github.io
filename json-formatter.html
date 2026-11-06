@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter — Format, Minify & Validate JSON Online | QuickTools</title>
+<meta name="description" content="Free online JSON formatter: pretty-print JSON with 2-space indentation, minify it, validate it and see exact parse errors. Everything runs in your browser — nothing is uploaded.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>JSON Formatter</h1>
+  <p class="lead">Paste messy JSON and make it readable — or shrink it to a single line. Format, minify and validate entirely in your browser, with clear error messages when something is wrong.</p>
+  <p class="privacy-note">🔒 Private by design: your JSON is parsed locally in your browser — it is never uploaded to any server, which makes this safe for API responses and config files.</p>
+
+  <div class="tool-panel">
+    <label for="jsonInput">Input JSON</label>
+    <textarea id="jsonInput" class="mono" rows="9" placeholder='{"name":"QuickTools","tools":36,"free":true}'></textarea>
+    <div class="btn-row">
+      <button class="btn" id="formatBtn" type="button">Format (pretty-print)</button>
+      <button class="btn btn-secondary" id="minifyBtn" type="button">Minify</button>
+      <button class="btn btn-secondary" id="validateBtn" type="button">Validate only</button>
+    </div>
+    <label for="jsonOutput" style="margin-top:20px">Output <span class="note" id="outputStats"></span></label>
+    <textarea id="jsonOutput" class="mono" rows="9" readonly placeholder="Your formatted or minified JSON will appear here…"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="copyBtn" type="button">⧉ Copy output</button>
+      <button class="btn btn-secondary" id="useAsInputBtn" type="button">↑ Use output as input</button>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Paste your JSON into the input box.</li>
+      <li>Click <strong>Format</strong> for a readable, 2-space indented version, or <strong>Minify</strong> for a compact single line.</li>
+      <li>Click <strong>Validate only</strong> just to check the JSON is well-formed.</li>
+      <li>Copy the output, or send it back to the input for further work.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What makes JSON invalid?</h3>
+    <p>The most common causes are trailing commas, single quotes instead of double quotes, unquoted keys, and missing commas or brackets. The error message above points to the problem — modern browsers report the position of the first syntax error.</p>
+    <h3>Does formatting change my data?</h3>
+    <p>No. Format and Minify only change whitespace. The parsed value is identical — every key, value, number and string stays exactly the same, in the same order.</p>
+    <h3>Why does my long number look different after formatting?</h3>
+    <p>JSON numbers are read as double-precision floats, so integers beyond about 16 digits can lose precision when parsed. If you work with very long IDs, keep them as strings in quotes instead of raw numbers.</p>
+    <h3>Is it safe to paste API keys or tokens here?</h3>
+    <p>The tool runs entirely in your browser and stores nothing, so your data does not leave the device. Even so, good practice is to avoid pasting production secrets into any tool you do not fully control.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="base64-encoder-decoder.html">Base64 Encoder &amp; Decoder</a>
+      <a href="color-converter.html">Color Converter</a>
+      <a href="word-counter.html">Word Counter</a>
+      <a href="case-converter.html">Case Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var input = document.getElementById("jsonInput");
+  var output = document.getElementById("jsonOutput");
+  var resultBox = document.getElementById("resultBox");
+  var errorBox = document.getElementById("errorBox");
+  var outputStats = document.getElementById("outputStats");
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function parse() {
+    var raw = input.value;
+    if (!raw.trim()) { showError("Please paste some JSON into the input box first."); return null; }
+    try {
+      return { ok: true, value: JSON.parse(raw) };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  }
+  function updateStats() {
+    var t = output.value;
+    var lines = t ? t.split("\n").length : 0;
+    outputStats.textContent = t ? "— " + t.length.toLocaleString("en-US") + " characters, " + lines.toLocaleString("en-US") + " lines" : "";
+  }
+  function setOutput(text, okMsg) {
+    output.value = text;
+    resultBox.textContent = okMsg;
+    updateStats();
+  }
+
+  document.getElementById("formatBtn").addEventListener("click", function () {
+    showError(""); resultBox.textContent = "";
+    var r = parse();
+    if (!r) return;
+    if (!r.ok) { showError("Invalid JSON: " + r.error); return; }
+    setOutput(JSON.stringify(r.value, null, 2), "✓ Valid JSON — formatted with 2-space indentation.");
+  });
+  document.getElementById("minifyBtn").addEventListener("click", function () {
+    showError(""); resultBox.textContent = "";
+    var r = parse();
+    if (!r) return;
+    if (!r.ok) { showError("Invalid JSON: " + r.error); return; }
+    setOutput(JSON.stringify(r.value), "✓ Valid JSON — minified to a single line.");
+  });
+  document.getElementById("validateBtn").addEventListener("click", function () {
+    showError(""); resultBox.textContent = "";
+    var r = parse();
+    if (!r) return;
+    if (!r.ok) { showError("Invalid JSON: " + r.error); return; }
+    resultBox.textContent = "✓ This JSON is valid.";
+  });
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    if (!output.value) { showError("Nothing to copy yet — format or minify your JSON first."); return; }
+    function done() { resultBox.textContent = "✓ Output copied to the clipboard."; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(output.value).then(done, function () {
+        output.select(); document.execCommand("copy"); done();
+      });
+    } else {
+      output.select(); document.execCommand("copy"); done();
+    }
+  });
+  document.getElementById("useAsInputBtn").addEventListener("click", function () {
+    if (!output.value) return;
+    input.value = output.value;
+    output.value = "";
+    resultBox.textContent = "";
+    updateStats();
+    input.focus();
+  });
+  updateStats();
+})();
+</script>
+</body>
+</html>

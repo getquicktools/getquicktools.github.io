@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Date Calculator — Days Between Dates, Add or Subtract Days | QuickTools</title>
+<meta name="description" content="Free date calculator: count the days between two dates (with a years/months/days breakdown), or add and subtract days from any date to find the resulting day and weekday.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Date Calculator</h1>
+  <p class="lead">Two date tools in one: count exactly how many days lie between two dates, and work out the date a number of days before or after any day.</p>
+  <p class="privacy-note">🔒 Private by design: all calculations run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="calc-grid" style="margin-bottom:30px">
+    <div class="calc-card">
+      <h3>Days between two dates</h3>
+      <label for="d1">Start date</label>
+      <input type="date" id="d1">
+      <label for="d2">End date</label>
+      <input type="date" id="d2">
+      <div class="answer" id="betweenAnswer">—</div>
+      <p class="note" id="betweenDetail"></p>
+    </div>
+
+    <div class="calc-card">
+      <h3>Add or subtract days</h3>
+      <label for="baseDate">Start date</label>
+      <input type="date" id="baseDate">
+      <label for="daysNum">Number of days</label>
+      <input type="number" id="daysNum" value="30" step="1">
+      <label>Direction</label>
+      <div class="check-row">
+        <label><input type="radio" name="direction" value="add" checked> Add days</label>
+        <label><input type="radio" name="direction" value="sub"> Subtract days</label>
+      </div>
+      <div class="answer" id="addAnswer">—</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>For a duration, pick a start and end date in the first card — you get total days, weeks, and a years/months/days breakdown.</li>
+      <li>For a deadline or future date, use the second card: pick a date, enter the number of days, and choose add or subtract.</li>
+      <li>Results update instantly as you change any value.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Does the count include the start and end dates?</h3>
+    <p>The total is the number of full days between the two dates — the standard difference. From Monday to Tuesday is 1 day. If you need an inclusive count (both endpoints counted, e.g. for hotel nights vs days), simply add 1.</p>
+    <h3>How is the years/months/days breakdown worked out?</h3>
+    <p>It is a calendar breakdown, the same way you would describe an age: whole years first, then whole months, then the remaining days. Because months have different lengths, it is not just the total divided by 30.</p>
+    <h3>Does the calculator handle leap years?</h3>
+    <p>Yes. All maths uses the real calendar, so February 29 in leap years is counted correctly in both directions.</p>
+    <h3>Which day of the week was a date?</h3>
+    <p>Use the "add or subtract days" card with 0 days — the result shows the full date including its weekday. The "days between" result also names both weekdays.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="age-calculator.html">Age Calculator</a>
+      <a href="bmi-calculator.html">BMI Calculator</a>
+      <a href="calorie-calculator.html">Calorie Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+      <a href="unit-converter.html">Unit Converter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var DAY_MS = 24 * 60 * 60 * 1000;
+
+  function parseDate(v) {
+    if (!v) return null;
+    var p = v.split("-");
+    if (p.length !== 3) return null;
+    var d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10)));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function fmtDate(d) {
+    return WEEKDAYS[d.getUTCDay()] + ", " + d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear();
+  }
+  function daysInMonthUTC(year, monthIndex) {
+    return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+  }
+  function todayValue() {
+    var now = new Date();
+    var m = String(now.getMonth() + 1).padStart(2, "0");
+    var day = String(now.getDate()).padStart(2, "0");
+    return now.getFullYear() + "-" + m + "-" + day;
+  }
+
+  // ---- Days between ----
+  var d1 = document.getElementById("d1");
+  var d2 = document.getElementById("d2");
+  var betweenAnswer = document.getElementById("betweenAnswer");
+  var betweenDetail = document.getElementById("betweenDetail");
+
+  function calcBetween() {
+    var a = parseDate(d1.value);
+    var b = parseDate(d2.value);
+    if (!a || !b) { betweenAnswer.textContent = "—"; betweenDetail.textContent = ""; return; }
+    var totalDays = Math.round(Math.abs(b - a) / DAY_MS);
+    var weeks = Math.floor(totalDays / 7);
+    var remDays = totalDays % 7;
+
+    // Calendar breakdown from the earlier date to the later one
+    var start = a <= b ? a : b;
+    var end = a <= b ? b : a;
+    var years = end.getUTCFullYear() - start.getUTCFullYear();
+    var months = end.getUTCMonth() - start.getUTCMonth();
+    var days = end.getUTCDate() - start.getUTCDate();
+    if (days < 0) {
+      months--;
+      var prevMonth = end.getUTCMonth() - 1;
+      var prevYear = end.getUTCFullYear();
+      if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+      days += daysInMonthUTC(prevYear, prevMonth);
+    }
+    if (months < 0) { years--; months += 12; }
+
+    betweenAnswer.textContent = totalDays.toLocaleString("en-US") + (totalDays === 1 ? " day" : " days");
+    betweenDetail.textContent =
+      "= " + weeks.toLocaleString("en-US") + (weeks === 1 ? " week" : " weeks") +
+      (remDays ? " and " + remDays + (remDays === 1 ? " day" : " days") : "") +
+      " · or " + years + (years === 1 ? " year" : " years") + ", " +
+      months + (months === 1 ? " month" : " months") + " and " +
+      days + (days === 1 ? " day" : " days") +
+      " · " + fmtDate(start) + " → " + fmtDate(end);
+  }
+
+  // ---- Add / subtract ----
+  var baseDate = document.getElementById("baseDate");
+  var daysNum = document.getElementById("daysNum");
+  var addAnswer = document.getElementById("addAnswer");
+
+  function calcAdd() {
+    var base = parseDate(baseDate.value);
+    var n = parseInt(daysNum.value, 10);
+    var dir = document.querySelector('input[name="direction"]:checked').value;
+    if (!base || isNaN(n)) { addAnswer.textContent = "—"; return; }
+    var result = new Date(base.getTime() + (dir === "add" ? n : -n) * DAY_MS);
+    addAnswer.textContent = fmtDate(result);
+  }
+
+  var today = todayValue();
+  d1.value = today; d2.value = today; baseDate.value = today;
+  [d1, d2].forEach(function (el) { el.addEventListener("input", calcBetween); el.addEventListener("change", calcBetween); });
+  [baseDate, daysNum].forEach(function (el) { el.addEventListener("input", calcAdd); el.addEventListener("change", calcAdd); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="direction"]'), function (r) {
+    r.addEventListener("change", calcAdd);
+  });
+  calcBetween();
+  calcAdd();
+})();
+</script>
+</body>
+</html>

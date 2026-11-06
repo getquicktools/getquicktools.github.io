@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Converter — HEX, RGB, HSL & HSV with Shades and Tints | QuickTools</title>
+<meta name="description" content="Free color converter: pick or type a color and get HEX, RGB, HSL and HSV values with one-click copy, plus darker shades and lighter tints. Runs in your browser.">
+<link rel="stylesheet" href="style.css">
+<style>
+.color-picker-row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.color-picker-row input[type="color"]{width:90px;height:54px;border:1px solid var(--border);border-radius:8px;background:#fff;padding:4px;cursor:pointer}
+.swatches{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.swatch{width:64px;height:64px;border-radius:10px;border:1px solid var(--border);cursor:pointer;position:relative}
+.swatch:hover{transform:translateY(-2px)}
+.swatch span{position:absolute;left:0;right:0;bottom:-20px;font-size:.68rem;text-align:center;color:var(--muted)}
+.swatch-wrap{margin-bottom:26px;text-align:center}
+.value-row{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;margin-top:10px}
+.value-row .k{font-weight:700}
+@media (max-width:640px){.value-row{grid-template-columns:64px 1fr auto}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Color Converter</h1>
+  <p class="lead">Pick a color — or type its HEX code — and instantly get the HEX, RGB, HSL and HSV values for your CSS, plus a row of matching shades and tints.</p>
+  <p class="privacy-note">🔒 Private by design: all conversions run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <div class="color-picker-row">
+      <div>
+        <label for="colorPicker">Pick a color</label>
+        <input type="color" id="colorPicker" value="#2563eb">
+      </div>
+      <div style="flex:1;min-width:180px">
+        <label for="hexInput">HEX code</label>
+        <input type="text" id="hexInput" value="#2563eb" class="mono" spellcheck="false">
+      </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+
+    <label style="margin-top:22px">Values — click Copy to grab any format</label>
+    <div class="value-row"><span class="k">HEX</span><input type="text" id="valHex" class="mono" readonly><button class="btn btn-secondary copy-btn" type="button" data-target="valHex">Copy</button></div>
+    <div class="value-row"><span class="k">RGB</span><input type="text" id="valRgb" class="mono" readonly><button class="btn btn-secondary copy-btn" type="button" data-target="valRgb">Copy</button></div>
+    <div class="value-row"><span class="k">HSL</span><input type="text" id="valHsl" class="mono" readonly><button class="btn btn-secondary copy-btn" type="button" data-target="valHsl">Copy</button></div>
+    <div class="value-row"><span class="k">HSV</span><input type="text" id="valHsv" class="mono" readonly><button class="btn btn-secondary copy-btn" type="button" data-target="valHsv">Copy</button></div>
+    <div class="result-box" id="resultBox"></div>
+
+    <label style="margin-top:26px">Shades &amp; tints — click one to select it</label>
+    <div class="swatches" id="swatches"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Use the color picker, or type a HEX code like <span class="mono">#2563eb</span> (the short form <span class="mono">#26e</span> also works).</li>
+      <li>Read the HEX, RGB, HSL and HSV values and copy whichever your code needs.</li>
+      <li>Click any shade or tint swatch to explore darker and lighter versions of the color.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>When should I use HEX, RGB or HSL?</h3>
+    <p>HEX is the classic choice for CSS and design tools. RGB (and rgba) is handy when you need transparency. HSL is the most human-friendly for code: you can lighten, darken or shift a color predictably by changing one number.</p>
+    <h3>What is the difference between HSL and HSV?</h3>
+    <p>Both describe a color by hue and saturation, but they measure brightness differently. In HSL, lightness runs from black (0%) through the pure color (50%) to white (100%); in HSV, value runs from black (0%) to the pure color (100%). Design tools like Figma usually use HSV/HSB; CSS uses HSL.</p>
+    <h3>How are the shades and tints generated?</h3>
+    <p>Shades mix the base color with black (40% and 20% darker steps) and tints mix it with white (20% and 40% lighter steps), with the untouched base color in the middle — a standard, reliable way to build a small palette.</p>
+    <h3>Why did my HEX code show an error?</h3>
+    <p>HEX codes must be 3 or 6 characters of 0–9 and A–F, with an optional leading #. Codes like #12345 (five digits) or letters beyond F are not valid colors.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="json-formatter.html">JSON Formatter</a>
+      <a href="base64-encoder-decoder.html">Base64 Encoder &amp; Decoder</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var picker = document.getElementById("colorPicker");
+  var hexInput = document.getElementById("hexInput");
+  var errorBox = document.getElementById("errorBox");
+  var resultBox = document.getElementById("resultBox");
+  var swatchesEl = document.getElementById("swatches");
+  var current = { r: 37, g: 99, b: 235 };
+
+  function clamp255(n) { return Math.max(0, Math.min(255, Math.round(n))); }
+  function toHex2(n) { return clamp255(n).toString(16).padStart(2, "0"); }
+  function rgbToHex(r, g, b) { return "#" + toHex2(r) + toHex2(g) + toHex2(b); }
+  function parseHex(str) {
+    var s = String(str).trim().replace(/^#/, "");
+    if (/^[0-9a-fA-F]{3}$/.test(s)) s = s.split("").map(function (c) { return c + c; }).join("");
+    if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+    return { r: parseInt(s.slice(0, 2), 16), g: parseInt(s.slice(2, 4), 16), b: parseInt(s.slice(4, 6), 16) };
+  }
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+    }
+    return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+  }
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h = 0, d = max - min;
+    if (d !== 0) {
+      if (max === r) h = 60 * (((g - b) / d) % 6);
+      else if (max === g) h = 60 * ((b - r) / d + 2);
+      else h = 60 * ((r - g) / d + 4);
+    }
+    if (h < 0) h += 360;
+    var s = max === 0 ? 0 : d / max;
+    return { h: Math.round(h), s: Math.round(s * 100), v: Math.round(max * 100) };
+  }
+  function mix(c, target, f) {
+    return {
+      r: clamp255(c.r + (target - c.r) * f),
+      g: clamp255(c.g + (target - c.g) * f),
+      b: clamp255(c.b + (target - c.b) * f)
+    };
+  }
+
+  function render() {
+    var r = current.r, g = current.g, b = current.b;
+    var hex = rgbToHex(r, g, b);
+    var hsl = rgbToHsl(r, g, b);
+    var hsv = rgbToHsv(r, g, b);
+    document.getElementById("valHex").value = hex;
+    document.getElementById("valRgb").value = "rgb(" + r + ", " + g + ", " + b + ")";
+    document.getElementById("valHsl").value = "hsl(" + hsl.h + ", " + hsl.s + "%, " + hsl.l + "%)";
+    document.getElementById("valHsv").value = "hsv(" + hsv.h + ", " + hsv.s + "%, " + hsv.v + "%)";
+    picker.value = hex;
+    if (document.activeElement !== hexInput) hexInput.value = hex;
+
+    var variants = [
+      { c: mix(current, 0, 0.4), label: "−40%" },
+      { c: mix(current, 0, 0.2), label: "−20%" },
+      { c: { r: r, g: g, b: b }, label: "Base" },
+      { c: mix(current, 255, 0.2), label: "+20%" },
+      { c: mix(current, 255, 0.4), label: "+40%" }
+    ];
+    swatchesEl.innerHTML = "";
+    variants.forEach(function (v) {
+      var wrap = document.createElement("div");
+      wrap.className = "swatch-wrap";
+      var d = document.createElement("div");
+      d.className = "swatch";
+      var h = rgbToHex(v.c.r, v.c.g, v.c.b);
+      d.style.background = h;
+      d.title = h;
+      var s = document.createElement("span");
+      s.textContent = v.label;
+      d.appendChild(s);
+      d.addEventListener("click", function () {
+        current = v.c;
+        hexInput.value = h;
+        errorBox.textContent = "";
+        render();
+      });
+      wrap.appendChild(d);
+      swatchesEl.appendChild(wrap);
+    });
+  }
+
+  picker.addEventListener("input", function () {
+    var c = parseHex(picker.value);
+    if (c) { current = c; errorBox.textContent = ""; hexInput.value = picker.value; render(); }
+  });
+  hexInput.addEventListener("input", function () {
+    var c = parseHex(hexInput.value);
+    if (c) { current = c; errorBox.textContent = ""; render(); }
+    else errorBox.textContent = "That is not a valid HEX color — use 3 or 6 characters from 0–9 and A–F, e.g. #2563eb.";
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), function (btn) {
+    btn.addEventListener("click", function () {
+      var field = document.getElementById(btn.getAttribute("data-target"));
+      function done() { resultBox.textContent = "✓ Copied " + field.value + " to the clipboard."; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(field.value).then(done, function () { field.select(); document.execCommand("copy"); done(); });
+      } else { field.select(); document.execCommand("copy"); done(); }
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

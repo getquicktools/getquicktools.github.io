@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Resizer — Resize Images Online by Pixels or Percent | QuickTools</title>
+<meta name="description" content="Resize JPG, PNG and WebP images online for free — set exact pixel dimensions with aspect-ratio lock, or scale by percentage. Private: resizing happens in your browser, nothing is uploaded.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Image Resizer</h1>
+  <p class="lead">Make an image bigger or smaller — type the exact width and height in pixels, or scale it by a percentage. Perfect for profile pictures, thumbnails and website images.</p>
+  <p class="privacy-note">🔒 Private by design: resizing runs locally in your browser — your image is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop an image here, or click to choose a file</div>
+      <div>Accepts PNG, JPG and WebP</div>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
+    </div>
+
+    <div id="controls" style="display:none">
+      <label>Resize by</label>
+      <div class="check-row">
+        <label><input type="radio" name="mode" value="pixels" checked> Dimensions (px)</label>
+        <label><input type="radio" name="mode" value="percent"> Percentage (%)</label>
+      </div>
+
+      <div id="pixelControls">
+        <div class="two-col">
+          <div>
+            <label for="widthInput">Width (px)</label>
+            <input type="number" id="widthInput" min="1" step="1">
+          </div>
+          <div>
+            <label for="heightInput">Height (px)</label>
+            <input type="number" id="heightInput" min="1" step="1">
+          </div>
+        </div>
+        <div class="check-row">
+          <label><input type="checkbox" id="lockAspect" checked> Lock aspect ratio (recommended — prevents stretching)</label>
+        </div>
+      </div>
+
+      <div id="percentControls" style="display:none">
+        <label for="percentRange">Scale: <span id="percentLabel">50%</span></label>
+        <input type="range" id="percentRange" min="5" max="200" step="1" value="50">
+        <div class="btn-row" style="margin-top:8px">
+          <button class="btn btn-secondary preset" type="button" data-pct="25">25%</button>
+          <button class="btn btn-secondary preset" type="button" data-pct="50">50%</button>
+          <button class="btn btn-secondary preset" type="button" data-pct="75">75%</button>
+          <button class="btn btn-secondary preset" type="button" data-pct="100">100%</button>
+          <button class="btn btn-secondary preset" type="button" data-pct="150">150%</button>
+          <button class="btn btn-secondary preset" type="button" data-pct="200">200%</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span class="num" id="origInfo">–</span><span class="lbl">Original</span></div>
+        <div class="stat"><span class="num" id="newInfo">–</span><span class="lbl">Resized</span></div>
+      </div>
+
+      <div class="preview-wrap">
+        <img id="preview" alt="Resized image preview">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="downloadBtn" type="button">⬇ Download resized image</button>
+      </div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PNG, JPG or WebP image into the box, or click to browse.</li>
+      <li>Choose <strong>Dimensions</strong> and type a new width or height — with the aspect ratio locked, the other side updates automatically.</li>
+      <li>Or choose <strong>Percentage</strong> and use the slider or preset buttons to scale the image up or down.</li>
+      <li>Check the preview and new size, then click <strong>Download resized image</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What does "lock aspect ratio" mean?</h3>
+    <p>It keeps the image's original proportions. If you change the width, the height is recalculated automatically so the picture never looks stretched or squashed. Turn it off only when you deliberately need an exact width <em>and</em> height.</p>
+    <h3>Can I make an image bigger without losing quality?</h3>
+    <p>Enlarging adds no new detail — the browser stretches the existing pixels, so big upscales can look soft. For modest increases (up to about 150%) the result is usually fine for web use.</p>
+    <h3>Does resizing keep the same file format?</h3>
+    <p>Yes — a JPG stays a JPG, a PNG stays a PNG, and WebP stays WebP whenever your browser can encode it. The estimated size shown is the actual size of the resized file, calculated before you download.</p>
+    <h3>Is there a size limit?</h3>
+    <p>There is no upload limit because nothing is uploaded — the practical limit is your device's memory. Extremely large images may be slow on older phones.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="image-converter.html">Image Converter</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Code Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var pixelControls = document.getElementById("pixelControls");
+  var percentControls = document.getElementById("percentControls");
+  var widthInput = document.getElementById("widthInput");
+  var heightInput = document.getElementById("heightInput");
+  var lockAspect = document.getElementById("lockAspect");
+  var percentRange = document.getElementById("percentRange");
+  var percentLabel = document.getElementById("percentLabel");
+  var origInfo = document.getElementById("origInfo");
+  var newInfo = document.getElementById("newInfo");
+  var preview = document.getElementById("preview");
+  var downloadBtn = document.getElementById("downloadBtn");
+  var errorBox = document.getElementById("errorBox");
+
+  var img = null;
+  var origW = 0, origH = 0, origType = "image/png", origSize = 0;
+  var baseName = "resized-image";
+  var outUrl = null;
+
+  function formatBytes(bytes) {
+    if (bytes === 0) return "0 B";
+    var units = ["B", "KB", "MB", "GB"];
+    var i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3);
+    return (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+  }
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function mode() {
+    var r = document.querySelector('input[name="mode"]:checked');
+    return r ? r.value : "pixels";
+  }
+
+  function targetSize() {
+    if (!img) return null;
+    if (mode() === "percent") {
+      var p = parseFloat(percentRange.value) / 100;
+      if (!isFinite(p) || p <= 0) return null;
+      return { w: Math.max(1, Math.round(origW * p)), h: Math.max(1, Math.round(origH * p)) };
+    }
+    var w = parseInt(widthInput.value, 10);
+    var h = parseInt(heightInput.value, 10);
+    if (!isFinite(w) || !isFinite(h) || w < 1 || h < 1) return null;
+    return { w: w, h: h };
+  }
+
+  function render() {
+    var t = targetSize();
+    if (!t) { newInfo.textContent = "–"; return; }
+    var canvas = document.createElement("canvas");
+    canvas.width = t.w;
+    canvas.height = t.h;
+    var ctx = canvas.getContext("2d");
+    if (origType === "image/jpeg") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, t.w, t.h);
+    }
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, t.w, t.h);
+    canvas.toBlob(function (blob) {
+      if (!blob) { showError("Resize failed — your browser could not encode this image."); return; }
+      if (outUrl) URL.revokeObjectURL(outUrl);
+      outUrl = URL.createObjectURL(blob);
+      preview.src = outUrl;
+      newInfo.textContent = t.w + " × " + t.h + " px · " + formatBytes(blob.size);
+    }, origType, 0.92);
+  }
+
+  function loadFile(file) {
+    showError("");
+    if (!file) return;
+    if (["image/png", "image/jpeg", "image/webp"].indexOf(file.type) === -1) {
+      showError("Please choose a PNG, JPG or WebP image.");
+      return;
+    }
+    baseName = file.name.replace(/\.[^.]+$/, "") || "resized-image";
+    origType = file.type;
+    origSize = file.size;
+    var url = URL.createObjectURL(file);
+    var image = new Image();
+    image.onload = function () {
+      img = image;
+      origW = image.naturalWidth;
+      origH = image.naturalHeight;
+      widthInput.value = origW;
+      heightInput.value = origH;
+      percentRange.value = 50;
+      percentLabel.textContent = "50%";
+      origInfo.textContent = origW + " × " + origH + " px · " + formatBytes(origSize);
+      controls.style.display = "block";
+      render();
+    };
+    image.onerror = function () { showError("That file could not be read as an image."); };
+    image.src = url;
+  }
+
+  widthInput.addEventListener("input", function () {
+    if (lockAspect.checked && img) {
+      var w = parseInt(widthInput.value, 10);
+      if (isFinite(w) && w > 0) heightInput.value = Math.max(1, Math.round(origH * w / origW));
+    }
+    render();
+  });
+  heightInput.addEventListener("input", function () {
+    if (lockAspect.checked && img) {
+      var h = parseInt(heightInput.value, 10);
+      if (isFinite(h) && h > 0) widthInput.value = Math.max(1, Math.round(origW * h / origH));
+    }
+    render();
+  });
+  percentRange.addEventListener("input", function () {
+    percentLabel.textContent = percentRange.value + "%";
+    render();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".preset"), function (btn) {
+    btn.addEventListener("click", function () {
+      percentRange.value = btn.getAttribute("data-pct");
+      percentLabel.textContent = btn.getAttribute("data-pct") + "%";
+      render();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="mode"]'), function (r) {
+    r.addEventListener("change", function () {
+      var isPct = mode() === "percent";
+      pixelControls.style.display = isPct ? "none" : "block";
+      percentControls.style.display = isPct ? "block" : "none";
+      render();
+    });
+  });
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { loadFile(fileInput.files[0]); });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+  downloadBtn.addEventListener("click", function () {
+    if (!outUrl) return;
+    var ext = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[origType] || "png";
+    var a = document.createElement("a");
+    a.href = outUrl;
+    a.download = baseName + "-resized." + ext;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+})();
+</script>
+</body>
+</html>

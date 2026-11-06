@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Encoder & Decoder — UTF-8 Safe, Online Free | QuickTools</title>
+<meta name="description" content="Encode text to Base64 or decode Base64 back to text, with full UTF-8 support for any language and emoji. Free, instant and private — everything runs in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Base64 Encoder &amp; Decoder</h1>
+  <p class="lead">Convert text to Base64 and back again. Fully UTF-8 safe, so Urdu, Arabic, Chinese and emoji all survive the round trip — unlike naive encoders.</p>
+  <p class="privacy-note">🔒 Private by design: encoding and decoding run locally in your browser — your text is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <label for="b64Input">Input</label>
+    <textarea id="b64Input" rows="6" placeholder="Type plain text to encode, or paste Base64 to decode…"></textarea>
+    <div class="btn-row">
+      <button class="btn" id="encodeBtn" type="button">Encode → Base64</button>
+      <button class="btn" id="decodeBtn" type="button">Decode → Text</button>
+      <button class="btn btn-secondary" id="swapBtn" type="button">⇅ Swap</button>
+    </div>
+    <label for="b64Output" style="margin-top:20px">Output</label>
+    <textarea id="b64Output" class="mono" rows="6" readonly placeholder="The result will appear here…"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="copyBtn" type="button">⧉ Copy output</button>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Type or paste your content into the input box.</li>
+      <li>Click <strong>Encode</strong> to turn plain text into Base64, or <strong>Decode</strong> to turn Base64 back into readable text.</li>
+      <li>Use <strong>Swap</strong> to move the output into the input for another round.</li>
+      <li>Copy the result with the copy button.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is Base64 used for?</h3>
+    <p>Base64 turns binary data or special characters into plain ASCII letters, numbers, + and /, so it can travel safely through systems designed for text — emails, URLs, JSON, HTML data URIs and API tokens.</p>
+    <h3>Why do some other decoders garble non-English text?</h3>
+    <p>Base64 works on bytes, but many simple tools treat each character as one byte. Text in Urdu, Arabic, Chinese or emoji needs multiple bytes per character (UTF-8). This tool converts text to UTF-8 bytes first and back afterwards, so every language round-trips correctly.</p>
+    <h3>Is Base64 a form of encryption?</h3>
+    <p>No. Anyone can decode Base64 instantly — it is an encoding for transport, not a way to hide or protect data. Never rely on it to keep secrets secret.</p>
+    <h3>Why did my decode fail?</h3>
+    <p>The input must be valid Base64: only A–Z, a–z, 0–9, + and /, usually ending with = padding, with a length that is a multiple of 4. A clear error is shown if the characters are invalid or the decoded bytes are not valid UTF-8 text.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="json-formatter.html">JSON Formatter</a>
+      <a href="color-converter.html">Color Converter</a>
+      <a href="password-generator.html">Password Generator</a>
+      <a href="word-counter.html">Word Counter</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var input = document.getElementById("b64Input");
+  var output = document.getElementById("b64Output");
+  var resultBox = document.getElementById("resultBox");
+  var errorBox = document.getElementById("errorBox");
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+
+  function encodeText(str) {
+    var bytes = new TextEncoder().encode(str);
+    var binary = "";
+    var chunk = 0x8000;
+    for (var i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+  function decodeText(b64) {
+    var clean = b64.replace(/\s+/g, "");
+    if (!clean) throw new Error("The input is empty.");
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length % 4 !== 0) {
+      throw new Error("That does not look like valid Base64. Check for missing characters, wrong padding, or stray symbols.");
+    }
+    var binary = atob(clean);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  }
+
+  document.getElementById("encodeBtn").addEventListener("click", function () {
+    showError(""); resultBox.textContent = "";
+    if (!input.value) { showError("Please type or paste some text to encode first."); return; }
+    output.value = encodeText(input.value);
+    resultBox.textContent = "✓ Encoded — " + output.value.length.toLocaleString("en-US") + " Base64 characters.";
+  });
+  document.getElementById("decodeBtn").addEventListener("click", function () {
+    showError(""); resultBox.textContent = "";
+    if (!input.value.trim()) { showError("Please paste some Base64 to decode first."); return; }
+    try {
+      output.value = decodeText(input.value);
+      resultBox.textContent = "✓ Decoded successfully.";
+    } catch (e) {
+      output.value = "";
+      showError("Decode failed: " + (e.message || "invalid Base64 input."));
+    }
+  });
+  document.getElementById("swapBtn").addEventListener("click", function () {
+    if (!output.value) return;
+    input.value = output.value;
+    output.value = "";
+    resultBox.textContent = "";
+    showError("");
+    input.focus();
+  });
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    if (!output.value) { showError("Nothing to copy yet."); return; }
+    function done() { resultBox.textContent = "✓ Output copied to the clipboard."; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(output.value).then(done, function () {
+        output.select(); document.execCommand("copy"); done();
+      });
+    } else {
+      output.select(); document.execCommand("copy"); done();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Calculator — EMI, Total Interest & Repayment Schedule | QuickTools</title>
+<meta name="description" content="Free loan and EMI calculator: monthly payment, total interest and a year-by-year repayment schedule for any loan amount, interest rate and term. Runs in your browser.">
+<link rel="stylesheet" href="style.css">
+<style>
+.tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:.95rem}
+.tbl th,.tbl td{border:1px solid var(--border);padding:8px 10px;text-align:right}
+.tbl th{background:#f1f5f9;text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Loan / EMI Calculator</h1>
+  <p class="lead">Work out the monthly payment (EMI) on any loan — car, home, personal or business — plus the total interest you will pay and a year-by-year repayment schedule.</p>
+  <p class="privacy-note">🔒 Private by design: all calculations run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <div class="two-col">
+      <div>
+        <label for="currency">Currency symbol</label>
+        <select id="currency">
+          <option value="$">$ — Dollar</option>
+          <option value="£">£ — Pound</option>
+          <option value="€">€ — Euro</option>
+          <option value="Rs">Rs — Rupee</option>
+        </select>
+        <label for="amount">Loan amount</label>
+        <input type="number" id="amount" value="25000" min="0" step="any">
+        <label for="rate">Annual interest rate (%)</label>
+        <input type="number" id="rate" value="7.5" min="0" step="any">
+      </div>
+      <div>
+        <label for="term">Loan term</label>
+        <input type="number" id="term" value="5" min="0" step="any">
+        <label>Term unit</label>
+        <div class="check-row">
+          <label><input type="radio" name="termUnit" value="years" checked> Years</label>
+          <label><input type="radio" name="termUnit" value="months"> Months</label>
+        </div>
+        <p class="note">Results update as you type. The schedule groups your monthly payments by year.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="num" id="monthlyOut">–</span><span class="lbl">Monthly payment (EMI)</span></div>
+      <div class="stat"><span class="num" id="interestOut">–</span><span class="lbl">Total interest</span></div>
+      <div class="stat"><span class="num" id="totalOut">–</span><span class="lbl">Total payment</span></div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+
+    <div id="scheduleWrap" class="tbl-wrap" style="display:none">
+      <h2 style="font-size:1.15rem">Year-by-year repayment schedule</h2>
+      <table class="tbl">
+        <thead>
+          <tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Remaining balance</th></tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Choose your currency symbol and type the loan amount.</li>
+      <li>Enter the annual interest rate and the term — in years or months.</li>
+      <li>Read your monthly payment, total interest and total cost at the top.</li>
+      <li>Scroll the schedule to see how much principal and interest you pay each year.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How is the monthly payment (EMI) calculated?</h3>
+    <p>With the standard amortisation formula: EMI = P × r × (1 + r)<sup>n</sup> ÷ ((1 + r)<sup>n</sup> − 1), where P is the loan amount, r is the monthly interest rate (annual rate ÷ 12 ÷ 100) and n is the number of monthly payments. For a 0% loan the payment is simply the amount divided by the number of months.</p>
+    <h3>Why is so much of my early payment interest?</h3>
+    <p>Interest is charged on the outstanding balance, which is highest at the start. Early payments are mostly interest; as the balance falls, more of each payment goes to principal. The yearly schedule above shows this shift clearly.</p>
+    <h3>Does this include fees, taxes or insurance?</h3>
+    <p>No — it covers principal and interest only. Arrangement fees, insurance and taxes vary by lender and would add to the true cost, so ask your lender for the total payable figure before signing.</p>
+    <h3>Can I use this for a mortgage?</h3>
+    <p>Yes, the maths is identical for home loans — enter the mortgage amount, rate and a term of e.g. 25 or 30 years. Just remember it excludes property taxes, insurance and any rate changes on variable-rate deals.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="currency-converter.html">Currency Converter</a>
+      <a href="compound-interest.html">Compound Interest Calculator</a>
+      <a href="tip-calculator.html">Tip Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var currency = document.getElementById("currency");
+  var amountEl = document.getElementById("amount");
+  var rateEl = document.getElementById("rate");
+  var termEl = document.getElementById("term");
+  var monthlyOut = document.getElementById("monthlyOut");
+  var interestOut = document.getElementById("interestOut");
+  var totalOut = document.getElementById("totalOut");
+  var errorBox = document.getElementById("errorBox");
+  var scheduleWrap = document.getElementById("scheduleWrap");
+  var scheduleBody = document.getElementById("scheduleBody");
+
+  function money(n) {
+    return currency.value + " " + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function showError(msg) { errorBox.textContent = msg || ""; }
+
+  function calculate() {
+    showError("");
+    var P = parseFloat(amountEl.value);
+    var annual = parseFloat(rateEl.value);
+    var termVal = parseFloat(termEl.value);
+    var unit = document.querySelector('input[name="termUnit"]:checked').value;
+    if (isNaN(P) || isNaN(annual) || isNaN(termVal) || P < 0 || annual < 0 || termVal <= 0) {
+      monthlyOut.textContent = "–"; interestOut.textContent = "–"; totalOut.textContent = "–";
+      scheduleWrap.style.display = "none";
+      if (termVal <= 0 && !isNaN(termVal)) showError("Please enter a term greater than zero.");
+      return;
+    }
+    var n = unit === "years" ? Math.round(termVal * 12) : Math.round(termVal);
+    if (n < 1) { showError("The term must be at least one month."); scheduleWrap.style.display = "none"; return; }
+    var r = annual / 100 / 12;
+    var payment;
+    if (r === 0) payment = P / n;
+    else {
+      var f = Math.pow(1 + r, n);
+      payment = P * r * f / (f - 1);
+    }
+    var totalPayment = payment * n;
+    var totalInterest = totalPayment - P;
+    monthlyOut.textContent = money(payment);
+    interestOut.textContent = money(Math.max(0, totalInterest));
+    totalOut.textContent = money(totalPayment);
+
+    // Year-by-year schedule
+    var balance = P;
+    var rows = [];
+    var yearPrincipal = 0, yearInterest = 0, year = 1;
+    for (var m = 1; m <= n; m++) {
+      var interest = balance * r;
+      var principal = payment - interest;
+      if (m === n || principal > balance) principal = balance; // final payment settles the loan
+      balance -= principal;
+      if (balance < 0.005) balance = 0;
+      yearPrincipal += principal;
+      yearInterest += interest;
+      if (m % 12 === 0 || m === n) {
+        rows.push({ year: year, principal: yearPrincipal, interest: yearInterest, balance: balance });
+        year++; yearPrincipal = 0; yearInterest = 0;
+      }
+    }
+    scheduleBody.innerHTML = rows.map(function (row) {
+      return "<tr><td>" + row.year + "</td><td>" + money(row.principal) + "</td><td>" +
+        money(row.interest) + "</td><td>" + money(row.balance) + "</td></tr>";
+    }).join("");
+    scheduleWrap.style.display = "block";
+  }
+
+  [currency, amountEl, rateEl, termEl].forEach(function (el) { el.addEventListener("input", calculate); el.addEventListener("change", calculate); });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="termUnit"]'), function (r) {
+    r.addEventListener("change", calculate);
+  });
+  calculate();
+})();
+</script>
+</body>
+</html>

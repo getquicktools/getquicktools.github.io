@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Interest Calculator — Growth with Monthly Contributions | QuickTools</title>
+<meta name="description" content="Free compound interest calculator: see how savings grow with yearly, quarterly, monthly or daily compounding, plus optional monthly contributions and a year-by-year table.">
+<link rel="stylesheet" href="style.css">
+<style>
+.tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:.95rem}
+.tbl th,.tbl td{border:1px solid var(--border);padding:8px 10px;text-align:right}
+.tbl th{background:#f1f5f9;text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Compound Interest Calculator</h1>
+  <p class="lead">See how your money can grow when interest earns interest. Add an optional monthly contribution to model a regular savings habit.</p>
+  <p class="privacy-note">🔒 Private by design: all calculations run locally in your browser — nothing is uploaded or stored.</p>
+
+  <div class="tool-panel">
+    <div class="two-col">
+      <div>
+        <label for="principal">Initial amount</label>
+        <input type="number" id="principal" value="10000" min="0" step="any">
+        <label for="rate">Annual interest rate (%)</label>
+        <input type="number" id="rate" value="6" min="0" step="any">
+        <label for="years">Years to grow</label>
+        <input type="number" id="years" value="10" min="0" step="any">
+      </div>
+      <div>
+        <label for="frequency">Compounding frequency</label>
+        <select id="frequency">
+          <option value="1">Yearly</option>
+          <option value="2">Half-yearly</option>
+          <option value="4">Quarterly</option>
+          <option value="12" selected>Monthly</option>
+          <option value="365">Daily</option>
+        </select>
+        <label for="contribution">Monthly contribution (optional)</label>
+        <input type="number" id="contribution" value="200" min="0" step="any">
+        <p class="note">Contributions are added at the end of each month and are compounded monthly.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="num" id="fvOut">–</span><span class="lbl">Future value</span></div>
+      <div class="stat"><span class="num" id="contribOut">–</span><span class="lbl">Total contributions</span></div>
+      <div class="stat"><span class="num" id="interestOut">–</span><span class="lbl">Interest earned</span></div>
+    </div>
+    <div class="error-box" id="errorBox"></div>
+
+    <div id="tableWrap" class="tbl-wrap" style="display:none">
+      <h2 style="font-size:1.15rem">Growth year by year</h2>
+      <table class="tbl">
+        <thead>
+          <tr><th>Year</th><th>You have put in</th><th>Interest earned</th><th>Balance</th></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Enter your starting amount, the expected annual interest rate and the number of years.</li>
+      <li>Pick how often interest compounds — the more often, the slightly faster your money grows.</li>
+      <li>Add a monthly contribution if you plan to save regularly.</li>
+      <li>Read the future value and scroll the table to watch the balance grow year by year.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What is compound interest?</h3>
+    <p>It is interest earned on both your original money and on interest from earlier periods — "interest on interest". Over long periods this snowball effect is the main driver of savings growth.</p>
+    <h3>Which formula does this calculator use?</h3>
+    <p>For the starting amount: A = P × (1 + r ÷ n)<sup>n×t</sup>, where n is the compounding frequency. Monthly contributions are grown month by month at the monthly rate and added on top, so the total combines both parts.</p>
+    <h3>Does compounding frequency make a big difference?</h3>
+    <p>Only a modest one. At 6% over 10 years, daily compounding beats yearly compounding by roughly half a percent of the final value. Your contribution amount and time in the market matter far more.</p>
+    <h3>Are these results guaranteed?</h3>
+    <p>No. The calculator assumes a fixed rate, no taxes, no fees and no withdrawals. Real investments fluctuate and savings rates change, so treat the result as an illustration, not a promise.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="currency-converter.html">Currency Converter</a>
+      <a href="loan-calculator.html">Loan / EMI Calculator</a>
+      <a href="tip-calculator.html">Tip Calculator</a>
+      <a href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var principalEl = document.getElementById("principal");
+  var rateEl = document.getElementById("rate");
+  var yearsEl = document.getElementById("years");
+  var freqEl = document.getElementById("frequency");
+  var contribEl = document.getElementById("contribution");
+  var fvOut = document.getElementById("fvOut");
+  var contribOut = document.getElementById("contribOut");
+  var interestOut = document.getElementById("interestOut");
+  var errorBox = document.getElementById("errorBox");
+  var tableWrap = document.getElementById("tableWrap");
+  var tableBody = document.getElementById("tableBody");
+
+  function money(n) {
+    return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function balanceAt(P, r, n, monthly, tYears) {
+    var lump = P * Math.pow(1 + r / n, n * tYears);
+    var months = Math.round(tYears * 12);
+    var contribFv;
+    if (r === 0) contribFv = monthly * months;
+    else {
+      var rm = r / 12;
+      contribFv = monthly * ((Math.pow(1 + rm, months) - 1) / rm);
+    }
+    return lump + contribFv;
+  }
+
+  function calculate() {
+    errorBox.textContent = "";
+    var P = parseFloat(principalEl.value);
+    var ratePct = parseFloat(rateEl.value);
+    var yrs = parseFloat(yearsEl.value);
+    var monthly = parseFloat(contribEl.value);
+    var n = parseInt(freqEl.value, 10);
+    if (isNaN(monthly)) monthly = 0;
+    if (isNaN(P) || isNaN(ratePct) || isNaN(yrs) || P < 0 || ratePct < 0 || yrs < 0 || monthly < 0) {
+      fvOut.textContent = "–"; contribOut.textContent = "–"; interestOut.textContent = "–";
+      tableWrap.style.display = "none";
+      return;
+    }
+    var r = ratePct / 100;
+    var fv = balanceAt(P, r, n, monthly, yrs);
+    var totalIn = P + monthly * Math.round(yrs * 12);
+    fvOut.textContent = money(fv);
+    contribOut.textContent = money(totalIn);
+    interestOut.textContent = money(fv - totalIn);
+
+    var rows = [];
+    var wholeYears = Math.floor(yrs);
+    for (var y = 1; y <= wholeYears; y++) {
+      var bal = balanceAt(P, r, n, monthly, y);
+      var put = P + monthly * 12 * y;
+      rows.push("<tr><td>" + y + "</td><td>" + money(put) + "</td><td>" + money(bal - put) + "</td><td>" + money(bal) + "</td></tr>");
+    }
+    if (yrs > wholeYears && yrs > 0) {
+      var putF = P + monthly * Math.round(yrs * 12);
+      rows.push("<tr><td>" + yrs + "</td><td>" + money(putF) + "</td><td>" + money(fv - putF) + "</td><td>" + money(fv) + "</td></tr>");
+    }
+    tableBody.innerHTML = rows.join("");
+    tableWrap.style.display = rows.length ? "block" : "none";
+  }
+
+  [principalEl, rateEl, yearsEl, freqEl, contribEl].forEach(function (el) {
+    el.addEventListener("input", calculate);
+    el.addEventListener("change", calculate);
+  });
+  calculate();
+})();
+</script>
+</body>
+</html>

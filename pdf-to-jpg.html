@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF to JPG — Convert PDF Pages to Images Online Free | QuickTools</title>
+<meta name="description" content="Convert PDF pages to JPG images online for free. Download each page on its own or all pages as a ZIP. High-quality rendering, 100% in your browser — nothing is uploaded.">
+<link rel="stylesheet" href="style.css">
+<style>
+.thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:16px}
+.thumb{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.thumb img{max-width:100%;height:auto;border:1px solid var(--border);border-radius:4px}
+.thumb .pnum{font-size:.85rem;color:var(--muted);margin:6px 0}
+.thumb a.dl{display:inline-block;background:#fff;border:1px solid var(--border);border-radius:6px;padding:2px 10px;font-size:.88rem}
+.thumb a.dl:hover{border-color:var(--blue);color:var(--blue);text-decoration:none}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>PDF to JPG</h1>
+  <p class="lead">Turn every page of a PDF into a crisp JPG image. Download pages one by one, or grab them all at once in a ZIP file.</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is converted locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <p class="note" id="fileInfo"></p>
+    <div class="thumb-grid" id="thumbGrid"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="zipBtn" type="button" disabled>📦 Download all pages as ZIP</button>
+    </div>
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file.</li>
+      <li>Every page is rendered as a JPG — previews appear with the page count.</li>
+      <li>Click <strong>Download JPG</strong> under any page to save just that page.</li>
+      <li>Or click <strong>Download all pages as ZIP</strong> to get every page in one file.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. Pages are rendered entirely in your browser using the pdf.js library, so even confidential documents stay on your device.</p>
+    <h3>What resolution are the JPGs?</h3>
+    <p>Pages are rendered at 2× their PDF size, which is sharp enough for documents, slides and social sharing. A standard A4 page comes out at roughly 1654 × 2339 pixels.</p>
+    <h3>Can I convert a very long PDF?</h3>
+    <p>Yes, but each page is rendered in your browser, so a PDF with hundreds of pages can take a while and use a lot of memory. For very long documents, split the PDF first and convert it in parts.</p>
+    <h3>Can I convert a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser library. Remove the password in your PDF viewer first, then convert.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var fileInfo = document.getElementById("fileInfo");
+  var thumbGrid = document.getElementById("thumbGrid");
+  var zipBtn = document.getElementById("zipBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var baseName = "document";
+  var pageBlobs = []; // JPEG Blobs, in page order
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function pdfJsMissing() { return typeof window.pdfjsLib === "undefined"; }
+  function zipMissing() { return typeof window.JSZip === "undefined"; }
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  if (pdfJsMissing()) {
+    showError("The PDF library (pdf.js) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+  if (zipMissing()) {
+    showError("The ZIP library (JSZip) could not be loaded from the CDN, so the ZIP download is unavailable. Check your internet connection and reload this page. Individual page downloads still work.");
+    zipBtn.disabled = true;
+  }
+
+  function canvasToBlob(canvas) {
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (blob) {
+        if (blob) resolve(blob);
+        else reject(new Error("Could not create a JPG image."));
+      }, "image/jpeg", 0.92);
+    });
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    thumbGrid.innerHTML = "";
+    pageBlobs = [];
+    zipBtn.disabled = true;
+    fileInfo.textContent = "";
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (pdfJsMissing()) {
+      showError("The PDF library (pdf.js) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    baseName = file.name.replace(/\.pdf$/i, "") || "document";
+    status.textContent = "Rendering pages…";
+    file.arrayBuffer().then(function (buf) {
+      return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    }).then(function (pdf) {
+      var count = pdf.numPages;
+      fileInfo.textContent = file.name + " — " + count + (count === 1 ? " page" : " pages");
+      var chain = Promise.resolve();
+      for (var i = 1; i <= count; i++) {
+        (function (pageNum) {
+          chain = chain.then(function () {
+            return pdf.getPage(pageNum).then(function (page) {
+              var viewport = page.getViewport({ scale: 2 });
+              var canvas = document.createElement("canvas");
+              canvas.width = Math.floor(viewport.width);
+              canvas.height = Math.floor(viewport.height);
+              var ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+                return canvasToBlob(canvas);
+              }).then(function (blob) {
+                pageBlobs[pageNum - 1] = blob;
+                var url = URL.createObjectURL(blob);
+                var wrap = document.createElement("div");
+                wrap.className = "thumb";
+                var img = document.createElement("img");
+                img.src = url;
+                img.alt = "Page " + pageNum;
+                wrap.appendChild(img);
+                var pnum = document.createElement("div");
+                pnum.className = "pnum";
+                pnum.textContent = "Page " + pageNum + " (" + canvas.width + " × " + canvas.height + ")";
+                wrap.appendChild(pnum);
+                var dl = document.createElement("a");
+                dl.className = "dl";
+                dl.href = url;
+                dl.download = baseName + "-page-" + pageNum + ".jpg";
+                dl.textContent = "⬇ Download JPG";
+                wrap.appendChild(dl);
+                thumbGrid.appendChild(wrap);
+                status.textContent = "Rendered page " + pageNum + " of " + count + "…";
+              });
+            });
+          });
+        })(i);
+      }
+      return chain.then(function () { return count; });
+    }).then(function (count) {
+      status.textContent = "Done! " + count + (count === 1 ? " page" : " pages") + " converted to JPG.";
+      zipBtn.disabled = zipMissing() || pageBlobs.length === 0;
+    }).catch(function (err) {
+      showError("Conversion failed: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+      status.textContent = "";
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  zipBtn.addEventListener("click", function () {
+    if (zipMissing()) {
+      showError("The ZIP library (JSZip) is not loaded, so the ZIP download is unavailable. Check your internet connection and reload this page.");
+      return;
+    }
+    if (!pageBlobs.length) return;
+    showError("");
+    zipBtn.disabled = true;
+    status.textContent = "Packing " + pageBlobs.length + " images into a ZIP…";
+    var zip = new window.JSZip();
+    pageBlobs.forEach(function (blob, idx) {
+      zip.file(baseName + "-page-" + (idx + 1) + ".jpg", blob);
+    });
+    zip.generateAsync({ type: "blob" }).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-jpg.zip";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! ZIP with " + pageBlobs.length + " JPGs downloaded.";
+      zipBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Creating the ZIP failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      zipBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

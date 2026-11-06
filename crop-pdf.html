@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crop PDF — Trim Margins from Every Page Online Free | QuickTools</title>
+<meta name="description" content="Crop a PDF online for free: trim top, bottom, left and right margins from every page by exact point values. Runs 100% in your browser — files are never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Crop PDF</h1>
+  <p class="lead">Trim unwanted margins and white space from every page of a PDF. Enter how many points to cut from each side — 72 points equal one inch (25.4 mm).</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is cropped locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <div id="controls" style="display:none">
+      <p class="note" id="fileInfo"></p>
+      <div class="two-col">
+        <div>
+          <label for="cropTop">Crop from top (pt)</label>
+          <input type="number" id="cropTop" min="0" value="0">
+        </div>
+        <div>
+          <label for="cropBottom">Crop from bottom (pt)</label>
+          <input type="number" id="cropBottom" min="0" value="0">
+        </div>
+      </div>
+      <div class="two-col">
+        <div>
+          <label for="cropLeft">Crop from left (pt)</label>
+          <input type="number" id="cropLeft" min="0" value="0">
+        </div>
+        <div>
+          <label for="cropRight">Crop from right (pt)</label>
+          <input type="number" id="cropRight" min="0" value="0">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="cropBtn" type="button">✂️ Crop &amp; download</button>
+      </div>
+    </div>
+
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file. The current page size is shown.</li>
+      <li>Type how much to trim from the top, bottom, left and right, in points (72 pt = 1 inch ≈ 25.4 mm). Leave a side at 0 to keep it.</li>
+      <li>Click <strong>Crop &amp; download</strong>. The same crop is applied to every page.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>What does cropping a PDF actually do?</h3>
+    <p>It shrinks the visible page area (the crop box) by the amounts you enter, which trims away margins and white space so the content appears larger when viewed or printed. This is the standard way to remove the wide white borders that scans and exported documents often have.</p>
+    <h3>Is the cropped-away content deleted?</h3>
+    <p>Cropping changes which part of the page is shown; the underlying content outside the crop area usually still exists in the file and can be revealed by resetting the crop in a full PDF editor. Don't rely on cropping to hide sensitive information — use a redaction tool for that.</p>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. Cropping is done entirely in your browser using the pdf-lib JavaScript library, so even confidential documents stay on your device.</p>
+    <h3>Can I crop a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser library. Remove the password in your PDF viewer first, then crop.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var fileInfo = document.getElementById("fileInfo");
+  var cropTop = document.getElementById("cropTop");
+  var cropBottom = document.getElementById("cropBottom");
+  var cropLeft = document.getElementById("cropLeft");
+  var cropRight = document.getElementById("cropRight");
+  var cropBtn = document.getElementById("cropBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var pdfBytes = null;
+  var pageCount = 0;
+  var baseName = "document";
+  var firstW = 0, firstH = 0;
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libMissing() { return typeof window.PDFLib === "undefined"; }
+
+  if (libMissing()) {
+    showError("The PDF library (pdf-lib) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (libMissing()) {
+      showError("The PDF library (pdf-lib) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    file.arrayBuffer().then(function (buf) {
+      return window.PDFLib.PDFDocument.load(buf, { ignoreEncryption: false }).then(function (doc) {
+        pdfBytes = new Uint8Array(buf);
+        pageCount = doc.getPageCount();
+        var mb = doc.getPages()[0].getMediaBox();
+        firstW = mb.width;
+        firstH = mb.height;
+        baseName = file.name.replace(/\.pdf$/i, "") || "document";
+        fileInfo.textContent = file.name + " — " + pageCount + (pageCount === 1 ? " page" : " pages") +
+          ". First page: " + Math.round(firstW) + " × " + Math.round(firstH) + " pt (" +
+          (firstW / 72 * 25.4).toFixed(0) + " × " + (firstH / 72 * 25.4).toFixed(0) + " mm). Pages with other sizes are cropped by the same amounts.";
+        controls.style.display = "block";
+        status.textContent = "PDF loaded. Enter the crop amounts and apply.";
+      });
+    }).catch(function (err) {
+      pdfBytes = null;
+      controls.style.display = "none";
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function readCrop(input) {
+    var v = parseFloat(input.value);
+    if (isNaN(v) || v < 0) return 0;
+    return v;
+  }
+
+  cropBtn.addEventListener("click", function () {
+    if (!pdfBytes) return;
+    var top = readCrop(cropTop);
+    var bottom = readCrop(cropBottom);
+    var left = readCrop(cropLeft);
+    var right = readCrop(cropRight);
+    if (top + bottom + left + right === 0) {
+      showError("Enter at least one crop amount greater than 0.");
+      return;
+    }
+    showError("");
+    cropBtn.disabled = true;
+    status.textContent = "Cropping…";
+    window.PDFLib.PDFDocument.load(pdfBytes).then(function (doc) {
+      var pages = doc.getPages();
+      for (var i = 0; i < pages.length; i++) {
+        var mb = pages[i].getMediaBox();
+        var newW = mb.width - left - right;
+        var newH = mb.height - top - bottom;
+        if (newW <= 0 || newH <= 0) {
+          throw new Error("The crop amounts are too large for page " + (i + 1) + " (" + Math.round(mb.width) + " × " + Math.round(mb.height) + " pt). Reduce them and try again.");
+        }
+        pages[i].setCropBox(mb.x + left, mb.y + bottom, newW, newH);
+      }
+      return doc.save();
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-cropped.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! All " + pageCount + (pageCount === 1 ? " page" : " pages") + " cropped (top " + top + ", bottom " + bottom + ", left " + left + ", right " + right + " pt).";
+      cropBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Cropping failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      cropBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

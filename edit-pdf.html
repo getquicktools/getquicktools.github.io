@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit PDF — Add Text and Images to a PDF Online Free | QuickTools</title>
+<meta name="description" content="Add text and images on top of any PDF page online for free. Click where the new content should go, style it, and download. 100% in your browser — files are never uploaded.">
+<link rel="stylesheet" href="style.css">
+<style>
+.page-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+.page-nav input[type="number"]{width:90px}
+.preview-stage{position:relative;display:inline-block;max-width:100%;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;line-height:0}
+.preview-stage canvas{max-width:100%;height:auto}
+.click-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#ef4444;border:2px solid #fff;box-shadow:0 0 4px rgba(0,0,0,.4);transform:translate(-50%,-50%);pointer-events:none;display:none}
+.add-list{list-style:none;margin:14px 0 0;padding:0}
+.add-list li{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:.94rem}
+.add-list .fname{flex:1;word-break:break-all}
+.add-list button{background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px 9px;font-size:.9rem}
+.add-list button:hover{border-color:var(--blue);color:var(--blue)}
+input[type="color"]{width:70px;height:42px;padding:2px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Edit PDF — Add Text &amp; Images</h1>
+  <p class="lead">Add new text or an image on top of any page of a PDF: a note, a date, your name, a logo. Click on the page preview to choose exactly where the new content will go, then download the result.</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is edited locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <div id="editor" style="display:none">
+      <div class="page-nav">
+        <button class="btn btn-secondary" id="prevPage" type="button">← Previous</button>
+        <span>Page <input type="number" id="pageNum" min="1" value="1"> of <span id="pageTotal">1</span></span>
+        <button class="btn btn-secondary" id="nextPage" type="button">Next →</button>
+      </div>
+
+      <div class="preview-wrap" style="text-align:left">
+        <div class="preview-stage" id="stage">
+          <canvas id="preview"></canvas>
+          <div class="click-dot" id="clickDot"></div>
+        </div>
+      </div>
+      <p class="note" id="clickInfo">Click anywhere on the page preview to set the position for the next text or image.</p>
+
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Add text</h3>
+          <label for="addText">Text</label>
+          <input type="text" id="addText" placeholder="Type the text to add" maxlength="120">
+          <div class="two-col">
+            <div>
+              <label for="textSize">Font size (pt)</label>
+              <input type="number" id="textSize" min="6" max="72" value="16">
+            </div>
+            <div>
+              <label for="textColor">Colour</label>
+              <input type="color" id="textColor" value="#000000">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="addTextBtn" type="button">➕ Add text at clicked point</button>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Add an image</h3>
+          <label for="imgFile">Image (JPG or PNG)</label>
+          <input type="file" id="imgFile" accept="image/jpeg,image/png,.jpg,.jpeg,.png">
+          <label for="imgWidth">Image width (pt)</label>
+          <input type="number" id="imgWidth" min="20" max="1000" value="150">
+          <div class="btn-row">
+            <button class="btn" id="addImgBtn" type="button">➕ Add image at clicked point</button>
+          </div>
+        </div>
+      </div>
+
+      <h3>Items to add</h3>
+      <ul class="add-list" id="addList"></ul>
+
+      <div class="btn-row">
+        <button class="btn" id="applyBtn" type="button" disabled>💾 Apply &amp; download edited PDF</button>
+      </div>
+    </div>
+
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file. The first page is shown as a preview.</li>
+      <li>Use the page controls to open the page you want to change, then <strong>click on the preview</strong> where the new text or image should start (a red dot marks the spot).</li>
+      <li>Type your text, set its size and colour, and click <strong>Add text at clicked point</strong> — or choose an image and click <strong>Add image at clicked point</strong>.</li>
+      <li>Repeat on any pages you like, then click <strong>Apply &amp; download edited PDF</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Can I change or delete text that is already in the PDF?</h3>
+    <p>No — honestly, this tool only <em>adds</em> new content on top of pages. Changing or removing existing text requires a full PDF editor. A common workaround is to add your correction as new text, but the original words remain underneath.</p>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. The preview is rendered and the new content is drawn entirely in your browser using the pdf.js and pdf-lib libraries, so even confidential documents stay on your device.</p>
+    <h3>How accurate is the placement?</h3>
+    <p>The clicked point becomes the top-left corner of the new text or image. The preview is a scaled render of the page, and the position is converted back to exact PDF coordinates, so the result lands where you clicked.</p>
+    <h3>Can I edit a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser libraries. Remove the password in your PDF viewer first, then edit.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var editor = document.getElementById("editor");
+  var prevPage = document.getElementById("prevPage");
+  var nextPage = document.getElementById("nextPage");
+  var pageNumInput = document.getElementById("pageNum");
+  var pageTotal = document.getElementById("pageTotal");
+  var stage = document.getElementById("stage");
+  var preview = document.getElementById("preview");
+  var clickDot = document.getElementById("clickDot");
+  var clickInfo = document.getElementById("clickInfo");
+  var addText = document.getElementById("addText");
+  var textSize = document.getElementById("textSize");
+  var textColor = document.getElementById("textColor");
+  var addTextBtn = document.getElementById("addTextBtn");
+  var imgFile = document.getElementById("imgFile");
+  var imgWidth = document.getElementById("imgWidth");
+  var addImgBtn = document.getElementById("addImgBtn");
+  var addList = document.getElementById("addList");
+  var applyBtn = document.getElementById("applyBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var RENDER_SCALE = 1.3;
+
+  var pdfJsDoc = null;
+  var libBytes = null;
+  var pageCount = 0;
+  var baseName = "document";
+  var currentPage = 1;
+  var pagePt = { width: 0, height: 0 };  // current page size in PDF points
+  var clickPt = null;                    // {page, x, yTop} in PDF points; yTop measured from TOP
+  var additions = [];                    // {kind:'text'|'image', page, x, yTop, ...}
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function pdfLibMissing() { return typeof window.PDFLib === "undefined"; }
+  function pdfJsMissing() { return typeof window.pdfjsLib === "undefined"; }
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  if (pdfLibMissing() || pdfJsMissing()) {
+    var missing = [];
+    if (pdfLibMissing()) missing.push("pdf-lib");
+    if (pdfJsMissing()) missing.push("pdf.js");
+    showError("The PDF " + (missing.length > 1 ? "libraries" : "library") + " (" + missing.join(", ") + ") could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function renderPage(n) {
+    if (!pdfJsDoc) return;
+    currentPage = n;
+    pageNumInput.value = n;
+    clickPt = null;
+    clickDot.style.display = "none";
+    clickInfo.textContent = "Page " + n + " shown. Click on the preview to set the position for the next text or image.";
+    pdfJsDoc.getPage(n).then(function (page) {
+      var ptVp = page.getViewport({ scale: 1 });
+      pagePt = { width: ptVp.width, height: ptVp.height };
+      var viewport = page.getViewport({ scale: RENDER_SCALE });
+      preview.width = Math.floor(viewport.width);
+      preview.height = Math.floor(viewport.height);
+      var ctx = preview.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, preview.width, preview.height);
+      return page.render({ canvasContext: ctx, viewport: viewport }).promise;
+    }).catch(function (err) {
+      showError("Could not render page " + n + ": " + (err && err.message ? err.message : "unknown error."));
+    });
+    prevPage.disabled = n <= 1;
+    nextPage.disabled = n >= pageCount;
+  }
+
+  prevPage.addEventListener("click", function () { if (currentPage > 1) renderPage(currentPage - 1); });
+  nextPage.addEventListener("click", function () { if (currentPage < pageCount) renderPage(currentPage + 1); });
+  pageNumInput.addEventListener("change", function () {
+    var n = parseInt(pageNumInput.value, 10);
+    if (!isNaN(n) && n >= 1 && n <= pageCount) renderPage(n);
+    else pageNumInput.value = currentPage;
+  });
+
+  stage.addEventListener("click", function (e) {
+    var rect = preview.getBoundingClientRect();
+    if (rect.width === 0) return;
+    var px = (e.clientX - rect.left) * (preview.width / rect.width);
+    var py = (e.clientY - rect.top) * (preview.height / rect.height);
+    var ptX = px / RENDER_SCALE;
+    var ptYTop = py / RENDER_SCALE;
+    clickPt = { page: currentPage, x: ptX, yTop: ptYTop };
+    var stageRect = stage.getBoundingClientRect();
+    clickDot.style.left = ((e.clientX - stageRect.left) / stageRect.width * 100) + "%";
+    clickDot.style.top = ((e.clientY - stageRect.top) / stageRect.height * 100) + "%";
+    clickDot.style.display = "block";
+    clickInfo.textContent = "Position set on page " + currentPage + " at " + Math.round(ptX) + " pt from the left, " + Math.round(ptYTop) + " pt from the top.";
+  });
+
+  function renderAddList() {
+    addList.innerHTML = "";
+    additions.forEach(function (item, idx) {
+      var li = document.createElement("li");
+      var name = document.createElement("span");
+      name.className = "fname";
+      if (item.kind === "text") {
+        name.textContent = "Text on page " + item.page + ": “" + item.text + "” (" + item.size + " pt)";
+      } else {
+        name.textContent = "Image on page " + item.page + ": " + item.name + " (" + item.width + " pt wide)";
+      }
+      li.appendChild(name);
+      var del = document.createElement("button");
+      del.type = "button"; del.textContent = "✕"; del.title = "Remove";
+      del.addEventListener("click", function () { additions.splice(idx, 1); renderAddList(); });
+      li.appendChild(del);
+      addList.appendChild(li);
+    });
+    applyBtn.disabled = additions.length === 0;
+    if (additions.length === 0) {
+      var li = document.createElement("li");
+      li.textContent = "Nothing added yet — click the preview, then add text or an image.";
+      addList.appendChild(li);
+    }
+  }
+
+  addTextBtn.addEventListener("click", function () {
+    if (!clickPt) { showError("Click on the page preview first to set where the text should go."); return; }
+    var text = addText.value.trim();
+    if (!text) { showError("Type the text you want to add first."); return; }
+    var size = parseInt(textSize.value, 10);
+    if (isNaN(size) || size < 6 || size > 72) size = 16;
+    showError("");
+    additions.push({
+      kind: "text", page: clickPt.page, x: clickPt.x, yTop: clickPt.yTop,
+      text: text, size: size, color: textColor.value
+    });
+    renderAddList();
+  });
+
+  addImgBtn.addEventListener("click", function () {
+    if (!clickPt) { showError("Click on the page preview first to set where the image should go."); return; }
+    var f = imgFile.files && imgFile.files[0];
+    if (!f) { showError("Choose an image file first."); return; }
+    var width = parseInt(imgWidth.value, 10);
+    if (isNaN(width) || width < 20) width = 150;
+    showError("");
+    var targetPage = clickPt.page, targetX = clickPt.x, targetY = clickPt.yTop;
+    f.arrayBuffer().then(function (buf) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(f);
+        var img = new Image();
+        img.onload = function () {
+          var dims = { w: img.naturalWidth, h: img.naturalHeight };
+          URL.revokeObjectURL(url);
+          resolve(dims);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Could not read that image.")); };
+        img.src = url;
+      }).then(function (dims) {
+        additions.push({
+          kind: "image", page: targetPage, x: targetX, yTop: targetY,
+          name: f.name, bytes: new Uint8Array(buf),
+          isPng: f.type === "image/png" || /\.png$/i.test(f.name),
+          width: width, height: width * (dims.h / dims.w)
+        });
+        renderAddList();
+      });
+    }).catch(function (err) {
+      showError("Could not add that image: " + (err && err.message ? err.message : "unknown error."));
+    });
+  });
+
+  function hexToRgb(hex, PDFLib) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex || "#000000");
+    if (!m) return PDFLib.rgb(0, 0, 0);
+    var n = parseInt(m[1], 16);
+    return PDFLib.rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    additions = [];
+    renderAddList();
+    editor.style.display = "none";
+    pdfJsDoc = null;
+    libBytes = null;
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (pdfLibMissing() || pdfJsMissing()) {
+      showError("A required PDF library is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    status.textContent = "Loading PDF…";
+    file.arrayBuffer().then(function (buf) {
+      libBytes = new Uint8Array(buf.slice(0)); // pdf.js takes ownership of the other copy
+      baseName = file.name.replace(/\.pdf$/i, "") || "document";
+      return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    }).then(function (pdf) {
+      pdfJsDoc = pdf;
+      pageCount = pdf.numPages;
+      pageTotal.textContent = pageCount;
+      pageNumInput.max = pageCount;
+      editor.style.display = "block";
+      status.textContent = baseName + ".pdf loaded — " + pageCount + (pageCount === 1 ? " page." : " pages.");
+      renderPage(1);
+    }).catch(function (err) {
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+      status.textContent = "";
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  applyBtn.addEventListener("click", function () {
+    if (!libBytes || additions.length === 0) return;
+    showError("");
+    applyBtn.disabled = true;
+    status.textContent = "Applying your additions…";
+    var PDFLib = window.PDFLib;
+    PDFLib.PDFDocument.load(libBytes).then(function (doc) {
+      return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function (font) {
+        var pages = doc.getPages();
+        var chain = Promise.resolve();
+        additions.forEach(function (item) {
+          chain = chain.then(function () {
+            var page = pages[item.page - 1];
+            var size = page.getSize();
+            if (item.kind === "text") {
+              // Click point is the top-left of the text; PDF y is the baseline from the bottom.
+              var baseline = size.height - item.yTop - item.size;
+              page.drawText(item.text, {
+                x: item.x, y: Math.max(baseline, 0), size: item.size,
+                font: font, color: hexToRgb(item.color, PDFLib)
+              });
+              return null;
+            }
+            var embedPromise = item.isPng ? doc.embedPng(item.bytes) : doc.embedJpg(item.bytes);
+            return embedPromise.then(function (img) {
+              var y = size.height - item.yTop - item.height;
+              page.drawImage(img, { x: item.x, y: Math.max(y, 0), width: item.width, height: item.height });
+            });
+          });
+        });
+        return chain.then(function () { return doc.save(); });
+      });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-edited.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! " + additions.length + (additions.length === 1 ? " item" : " items") + " added and the edited PDF downloaded.";
+      applyBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Applying the edits failed: " + (err && err.message ? err.message : "unknown error. Note: text with characters outside the standard Latin set (such as emoji) cannot be drawn by the built-in font."));
+      status.textContent = "";
+      applyBtn.disabled = false;
+    });
+  });
+
+  renderAddList();
+})();
+</script>
+</body>
+</html>

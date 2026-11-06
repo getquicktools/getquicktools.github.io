@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPG to PDF — Convert Images to PDF Online Free | QuickTools</title>
+<meta name="description" content="Convert JPG, PNG and WebP images into one PDF online for free. Choose page size, orientation and margins. Runs 100% in your browser — images are never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>JPG to PDF</h1>
+  <p class="lead">Turn one or more images into a single PDF document. Arrange the images in order, choose the page size, orientation and margins, then download.</p>
+  <p class="privacy-note">🔒 Private by design: your images are converted locally in your browser — they are never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop image files here, or click to choose files</div>
+      <div>JPG, PNG and WebP images — select several at once</div>
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple>
+    </div>
+
+    <ul class="file-list" id="fileList"></ul>
+
+    <div class="two-col">
+      <div>
+        <label for="pageSize">Page size</label>
+        <select id="pageSize">
+          <option value="a4" selected>A4 (210 × 297 mm)</option>
+          <option value="letter">Letter (8.5 × 11 in)</option>
+          <option value="fit">Fit to image (no fixed size)</option>
+        </select>
+      </div>
+      <div>
+        <label for="orientation">Orientation</label>
+        <select id="orientation">
+          <option value="auto" selected>Auto (matches each image)</option>
+          <option value="portrait">Portrait</option>
+          <option value="landscape">Landscape</option>
+        </select>
+      </div>
+    </div>
+    <label for="margin">Margin</label>
+    <select id="margin">
+      <option value="0" selected>None</option>
+      <option value="36">Small (36 pt ≈ 12.7 mm)</option>
+      <option value="72">Large (72 pt ≈ 25.4 mm)</option>
+    </select>
+
+    <div class="btn-row">
+      <button class="btn" id="buildBtn" type="button" disabled>🖼️ Create PDF &amp; download</button>
+      <button class="btn btn-secondary" id="clearBtn" type="button" disabled>Clear all</button>
+    </div>
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your images into the box, or click it to select several at once.</li>
+      <li>Use the ↑ and ↓ buttons to arrange them — each image becomes one page, in the order shown.</li>
+      <li>Choose page size, orientation and margin. "Fit to image" makes every page exactly the size of its image.</li>
+      <li>Click <strong>Create PDF &amp; download</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Are my images uploaded to a server?</h3>
+    <p>No. The PDF is built entirely in your browser using the pdf-lib JavaScript library, so private photos and scans stay on your device.</p>
+    <h3>Which image formats are supported?</h3>
+    <p>JPG and PNG are embedded directly. WebP (and other formats your browser can display) are converted to PNG in the browser first, then added.</p>
+    <h3>Will my images be compressed?</h3>
+    <p>JPG images are embedded unchanged, so their quality is preserved exactly. PNG images are also embedded losslessly.</p>
+    <h3>How are images placed on the page?</h3>
+    <p>Each image is scaled to fit inside the page margins while keeping its proportions, and centred on the page. It is never stretched or cropped.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var fileList = document.getElementById("fileList");
+  var pageSizeSel = document.getElementById("pageSize");
+  var orientationSel = document.getElementById("orientation");
+  var marginSel = document.getElementById("margin");
+  var buildBtn = document.getElementById("buildBtn");
+  var clearBtn = document.getElementById("clearBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var files = [];
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libMissing() { return typeof window.PDFLib === "undefined"; }
+
+  if (libMissing()) {
+    showError("The PDF library (pdf-lib) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function renderList() {
+    fileList.innerHTML = "";
+    files.forEach(function (file, idx) {
+      var li = document.createElement("li");
+      var name = document.createElement("span");
+      name.className = "fname";
+      name.textContent = (idx + 1) + ". " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+      li.appendChild(name);
+      var up = document.createElement("button");
+      up.type = "button"; up.textContent = "↑"; up.title = "Move up";
+      up.disabled = idx === 0;
+      up.addEventListener("click", function () {
+        var t = files[idx - 1]; files[idx - 1] = files[idx]; files[idx] = t; renderList();
+      });
+      var down = document.createElement("button");
+      down.type = "button"; down.textContent = "↓"; down.title = "Move down";
+      down.disabled = idx === files.length - 1;
+      down.addEventListener("click", function () {
+        var t = files[idx + 1]; files[idx + 1] = files[idx]; files[idx] = t; renderList();
+      });
+      var del = document.createElement("button");
+      del.type = "button"; del.textContent = "✕"; del.title = "Remove";
+      del.addEventListener("click", function () { files.splice(idx, 1); renderList(); });
+      li.appendChild(up); li.appendChild(down); li.appendChild(del);
+      fileList.appendChild(li);
+    });
+    buildBtn.disabled = files.length === 0 || libMissing();
+    clearBtn.disabled = files.length === 0;
+    status.textContent = files.length
+      ? files.length + (files.length === 1 ? " image ready." : " images ready — one page each.")
+      : "";
+  }
+
+  function addFiles(fileObjs) {
+    showError("");
+    var added = 0;
+    for (var i = 0; i < fileObjs.length; i++) {
+      var f = fileObjs[i];
+      if (/^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name)) { files.push(f); added++; }
+    }
+    if (added === 0) showError("No image files were found in that selection. Please choose JPG, PNG or WebP images.");
+    renderList();
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { addFiles(fileInput.files); fileInput.value = ""; });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  clearBtn.addEventListener("click", function () { files = []; showError(""); renderList(); });
+
+  function loadImageDims(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var dims = { width: img.naturalWidth, height: img.naturalHeight };
+        URL.revokeObjectURL(url);
+        resolve(dims);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read image: " + file.name));
+      };
+      img.src = url;
+    });
+  }
+
+  function fileToPngBytes(file) {
+    // Convert any browser-displayable image to PNG bytes via canvas.
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function (blob) {
+          if (!blob) { reject(new Error("Conversion failed for: " + file.name)); return; }
+          blob.arrayBuffer().then(function (buf) { resolve(new Uint8Array(buf)); }, reject);
+        }, "image/png");
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read image: " + file.name));
+      };
+      img.src = url;
+    });
+  }
+
+  buildBtn.addEventListener("click", function () {
+    if (libMissing()) {
+      showError("The PDF library (pdf-lib) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    showError("");
+    buildBtn.disabled = true;
+    status.textContent = "Building PDF…";
+    var PDFDocument = window.PDFLib.PDFDocument;
+    var sizeMode = pageSizeSel.value;
+    var orient = orientationSel.value;
+    var margin = parseInt(marginSel.value, 10);
+
+    PDFDocument.create().then(function (doc) {
+      var chain = Promise.resolve();
+      files.forEach(function (file, idx) {
+        chain = chain.then(function () {
+          status.textContent = "Adding image " + (idx + 1) + " of " + files.length + "…";
+          return Promise.all([file.arrayBuffer(), loadImageDims(file)]).then(function (res) {
+            var buf = new Uint8Array(res[0]);
+            var dims = res[1];
+            var embedPromise;
+            if (file.type === "image/jpeg" || /\.jpe?g$/i.test(file.name)) {
+              embedPromise = doc.embedJpg(buf);
+            } else if (file.type === "image/png" || /\.png$/i.test(file.name)) {
+              embedPromise = doc.embedPng(buf);
+            } else {
+              embedPromise = fileToPngBytes(file).then(function (pngBytes) { return doc.embedPng(pngBytes); });
+            }
+            return embedPromise.then(function (embedded) {
+              var pageW, pageH;
+              if (sizeMode === "fit") {
+                pageW = dims.width + margin * 2;
+                pageH = dims.height + margin * 2;
+              } else {
+                var base = sizeMode === "a4" ? [595.28, 841.89] : [612, 792];
+                var landscape = orient === "landscape" || (orient === "auto" && dims.width > dims.height);
+                pageW = landscape ? base[1] : base[0];
+                pageH = landscape ? base[0] : base[1];
+              }
+              var page = doc.addPage([pageW, pageH]);
+              var availW = pageW - margin * 2;
+              var availH = pageH - margin * 2;
+              var scale = Math.min(availW / dims.width, availH / dims.height);
+              var drawW = dims.width * scale;
+              var drawH = dims.height * scale;
+              page.drawImage(embedded, {
+                x: margin + (availW - drawW) / 2,
+                y: margin + (availH - drawH) / 2,
+                width: drawW,
+                height: drawH
+              });
+            });
+          });
+        });
+      });
+      return chain.then(function () { return doc.save(); });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "images.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! Your PDF with " + files.length + (files.length === 1 ? " page" : " pages") + " has been downloaded.";
+      buildBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Creating the PDF failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      buildBtn.disabled = false;
+    });
+  });
+
+  renderList();
+})();
+</script>
+</body>
+</html>

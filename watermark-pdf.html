@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watermark PDF — Add a Text Watermark to Every Page | QuickTools</title>
+<meta name="description" content="Add a text watermark like DRAFT or CONFIDENTIAL to every page of a PDF online for free. Control opacity, angle, size and layout. 100% in your browser — never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Watermark PDF</h1>
+  <p class="lead">Stamp a word or short phrase — DRAFT, CONFIDENTIAL, your company name — across every page of a PDF. Set the opacity, angle, size and layout, then download.</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is watermarked locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <div id="controls" style="display:none">
+      <p class="note" id="fileInfo"></p>
+
+      <label for="wmText">Watermark text</label>
+      <input type="text" id="wmText" value="CONFIDENTIAL" maxlength="60">
+
+      <div class="two-col">
+        <div>
+          <label for="position">Layout</label>
+          <select id="position">
+            <option value="center" selected>Single, centred</option>
+            <option value="tiled">Tiled grid (repeated)</option>
+          </select>
+        </div>
+        <div>
+          <label for="rotation">Angle</label>
+          <select id="rotation">
+            <option value="45" selected>Diagonal (45°)</option>
+            <option value="0">Straight (0°)</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="fontSize">Font size: <span id="fontSizeVal">48</span> pt</label>
+      <input type="range" id="fontSize" min="12" max="120" step="2" value="48">
+
+      <label for="opacity">Opacity: <span id="opacityVal">0.30</span></label>
+      <input type="range" id="opacity" min="0.1" max="0.9" step="0.05" value="0.3">
+
+      <div class="btn-row">
+        <button class="btn" id="applyBtn" type="button">💧 Add watermark &amp; download</button>
+      </div>
+    </div>
+
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file.</li>
+      <li>Type your watermark text and choose the layout: one big centred stamp, or a tiled grid repeated over the page.</li>
+      <li>Adjust the angle, font size and opacity — lower opacity keeps the page easy to read.</li>
+      <li>Click <strong>Add watermark &amp; download</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. The watermark is stamped entirely in your browser using the pdf-lib JavaScript library, so even confidential documents stay on your device.</p>
+    <h3>Is the watermark permanent?</h3>
+    <p>The text is drawn onto each page as part of the PDF content. It cannot be removed with a simple setting, but like any watermark it should be treated as a visible deterrent, not as encryption or security.</p>
+    <h3>Which colour is the watermark?</h3>
+    <p>Grey, at the opacity you choose. Grey stays visible on both light and dark page content without hiding the text underneath.</p>
+    <h3>Can I watermark a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser library. Remove the password in your PDF viewer first, then add the watermark.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var fileInfo = document.getElementById("fileInfo");
+  var wmText = document.getElementById("wmText");
+  var positionSel = document.getElementById("position");
+  var rotationSel = document.getElementById("rotation");
+  var fontSize = document.getElementById("fontSize");
+  var fontSizeVal = document.getElementById("fontSizeVal");
+  var opacity = document.getElementById("opacity");
+  var opacityVal = document.getElementById("opacityVal");
+  var applyBtn = document.getElementById("applyBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var pdfBytes = null;
+  var pageCount = 0;
+  var baseName = "document";
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libMissing() { return typeof window.PDFLib === "undefined"; }
+
+  if (libMissing()) {
+    showError("The PDF library (pdf-lib) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  fontSize.addEventListener("input", function () { fontSizeVal.textContent = fontSize.value; });
+  opacity.addEventListener("input", function () { opacityVal.textContent = Number(opacity.value).toFixed(2); });
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (libMissing()) {
+      showError("The PDF library (pdf-lib) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    file.arrayBuffer().then(function (buf) {
+      return window.PDFLib.PDFDocument.load(buf, { ignoreEncryption: false }).then(function (doc) {
+        pdfBytes = new Uint8Array(buf);
+        pageCount = doc.getPageCount();
+        baseName = file.name.replace(/\.pdf$/i, "") || "document";
+        fileInfo.textContent = file.name + " — " + pageCount + (pageCount === 1 ? " page" : " pages") + " (" + (file.size / 1024).toFixed(1) + " KB)";
+        controls.style.display = "block";
+        status.textContent = "PDF loaded. Set your watermark and apply it.";
+      });
+    }).catch(function (err) {
+      pdfBytes = null;
+      controls.style.display = "none";
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  applyBtn.addEventListener("click", function () {
+    if (!pdfBytes) return;
+    var text = wmText.value.trim();
+    if (!text) {
+      showError("Please type the watermark text first.");
+      return;
+    }
+    showError("");
+    applyBtn.disabled = true;
+    status.textContent = "Stamping watermark on " + pageCount + (pageCount === 1 ? " page" : " pages") + "…";
+    var PDFLib = window.PDFLib;
+    PDFLib.PDFDocument.load(pdfBytes).then(function (doc) {
+      return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function (font) {
+        var size = parseInt(fontSize.value, 10);
+        var op = parseFloat(opacity.value);
+        var angle = parseInt(rotationSel.value, 10);
+        var tiled = positionSel.value === "tiled";
+        var color = PDFLib.rgb(0.45, 0.45, 0.45);
+        var textWidth = font.widthOfTextAtSize(text, size);
+        doc.getPages().forEach(function (page) {
+          var dims = page.getSize();
+          var w = dims.width, h = dims.height;
+          if (tiled) {
+            var stepX = textWidth + 60;
+            var stepY = size * 3;
+            for (var x = -textWidth * 0.25; x < w; x += stepX) {
+              for (var y = 0; y < h + stepY; y += stepY) {
+                page.drawText(text, {
+                  x: x, y: y, size: size, font: font,
+                  color: color, opacity: op,
+                  rotate: PDFLib.degrees(angle)
+                });
+              }
+            }
+          } else {
+            page.drawText(text, {
+              x: (w - textWidth) / 2,
+              y: h / 2,
+              size: size, font: font,
+              color: color, opacity: op,
+              rotate: PDFLib.degrees(angle)
+            });
+          }
+        });
+        return doc.save();
+      });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-watermarked.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! Watermark added to all " + pageCount + (pageCount === 1 ? " page." : " pages.");
+      applyBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Adding the watermark failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      applyBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

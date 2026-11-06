@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organize PDF — Reorder and Delete Pages Visually | QuickTools</title>
+<meta name="description" content="Organize PDF pages online for free: see thumbnails of every page, move pages left or right, delete unwanted pages, and save the new order. Runs 100% in your browser.">
+<link rel="stylesheet" href="style.css">
+<style>
+.thumb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px;margin-top:16px}
+.thumb{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.thumb canvas{max-width:100%;height:auto;border:1px solid var(--border);border-radius:4px;background:#fff}
+.thumb .pnum{font-size:.85rem;color:var(--muted);margin:6px 0}
+.thumb .pos{font-weight:700;color:var(--blue-dark)}
+.thumb .tbtns{display:flex;gap:4px;justify-content:center}
+.thumb button{background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px 9px;font-size:.9rem}
+.thumb button:hover{border-color:var(--blue);color:var(--blue)}
+.thumb button:disabled{opacity:.4;cursor:not-allowed}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Organize PDF</h1>
+  <p class="lead">See every page as a thumbnail, move pages into the order you want, delete the ones you don't need, then save the result as a new PDF.</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is organized locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <p class="note" id="fileInfo"></p>
+    <div class="thumb-grid" id="thumbGrid"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="saveBtn" type="button" disabled>💾 Save in this order &amp; download</button>
+      <button class="btn btn-secondary" id="resetBtn" type="button" disabled>Reset order</button>
+    </div>
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file. Thumbnails of all pages appear.</li>
+      <li>Use the ← and → buttons under a page to move it earlier or later. Use ✕ to delete a page.</li>
+      <li>The bold number under each page shows its position in the new document.</li>
+      <li>Click <strong>Save in this order &amp; download</strong> to get the reorganized PDF.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. Thumbnails are rendered and the new PDF is built entirely in your browser, so even confidential documents stay on your device.</p>
+    <h3>Will the saved pages lose quality?</h3>
+    <p>No. Pages are copied exactly as they are into the new file — text, images and resolution are preserved.</p>
+    <h3>I deleted a page by mistake. Can I get it back?</h3>
+    <p>Click "Reset order" to restore all pages in their original order, as long as you haven't closed the page. Your original file on disk is never changed.</p>
+    <h3>Can I organize a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser libraries. Remove the password in your PDF viewer first, then organize.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var fileInfo = document.getElementById("fileInfo");
+  var thumbGrid = document.getElementById("thumbGrid");
+  var saveBtn = document.getElementById("saveBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var libBytes = null;   // copy of the PDF bytes for pdf-lib
+  var pageCount = 0;
+  var baseName = "document";
+  var order = [];        // original 0-based page indices, in the NEW order
+  var thumbEls = {};     // original index -> thumbnail element
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function pdfLibMissing() { return typeof window.PDFLib === "undefined"; }
+  function pdfJsMissing() { return typeof window.pdfjsLib === "undefined"; }
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  if (pdfLibMissing() || pdfJsMissing()) {
+    var missing = [];
+    if (pdfLibMissing()) missing.push("pdf-lib");
+    if (pdfJsMissing()) missing.push("pdf.js");
+    showError("The PDF " + (missing.length > 1 ? "libraries" : "library") + " (" + missing.join(", ") + ") could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function renderGrid() {
+    thumbGrid.innerHTML = "";
+    order.forEach(function (origIdx, pos) {
+      var el = thumbEls[origIdx];
+      var posEl = el.querySelector(".pos");
+      posEl.textContent = "New page " + (pos + 1);
+      var btns = el.querySelectorAll("button");
+      btns[0].disabled = pos === 0;                 // left
+      btns[1].disabled = pos === order.length - 1;  // right
+      thumbGrid.appendChild(el);
+    });
+    saveBtn.disabled = order.length === 0;
+    resetBtn.disabled = pageCount === 0;
+    status.textContent = pageCount
+      ? order.length + " of " + pageCount + " pages will be saved."
+      : "";
+  }
+
+  function move(pos, dir) {
+    var other = pos + dir;
+    if (other < 0 || other >= order.length) return;
+    var t = order[pos]; order[pos] = order[other]; order[other] = t;
+    renderGrid();
+  }
+
+  function buildThumb(origIdx, canvas) {
+    var wrap = document.createElement("div");
+    wrap.className = "thumb";
+    wrap.appendChild(canvas);
+    var pnum = document.createElement("div");
+    pnum.className = "pnum";
+    pnum.innerHTML = "Original page " + (origIdx + 1) + "<br><span class=\"pos\"></span>";
+    wrap.appendChild(pnum);
+    var btns = document.createElement("div");
+    btns.className = "tbtns";
+    var left = document.createElement("button");
+    left.type = "button"; left.textContent = "←"; left.title = "Move earlier";
+    left.addEventListener("click", function () { move(order.indexOf(origIdx), -1); });
+    var right = document.createElement("button");
+    right.type = "button"; right.textContent = "→"; right.title = "Move later";
+    right.addEventListener("click", function () { move(order.indexOf(origIdx), 1); });
+    var del = document.createElement("button");
+    del.type = "button"; del.textContent = "✕"; del.title = "Delete page";
+    del.addEventListener("click", function () {
+      var p = order.indexOf(origIdx);
+      if (p >= 0) { order.splice(p, 1); renderGrid(); }
+    });
+    btns.appendChild(left); btns.appendChild(right); btns.appendChild(del);
+    wrap.appendChild(btns);
+    return wrap;
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    thumbGrid.innerHTML = "";
+    thumbEls = {};
+    order = [];
+    libBytes = null;
+    saveBtn.disabled = true;
+    resetBtn.disabled = true;
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (pdfLibMissing() || pdfJsMissing()) {
+      showError("A required PDF library is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    status.textContent = "Loading and rendering pages…";
+    file.arrayBuffer().then(function (buf) {
+      libBytes = new Uint8Array(buf.slice(0)); // pdf.js will take ownership of the other copy
+      baseName = file.name.replace(/\.pdf$/i, "") || "document";
+      return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    }).then(function (pdf) {
+      pageCount = pdf.numPages;
+      fileInfo.textContent = baseName + ".pdf — " + pageCount + (pageCount === 1 ? " page" : " pages");
+      var chain = Promise.resolve();
+      var i;
+      for (i = 1; i <= pageCount; i++) {
+        (function (pageNum) {
+          chain = chain.then(function () {
+            return pdf.getPage(pageNum).then(function (page) {
+              var viewport = page.getViewport({ scale: 0.45 });
+              var canvas = document.createElement("canvas");
+              canvas.width = Math.floor(viewport.width);
+              canvas.height = Math.floor(viewport.height);
+              var ctx = canvas.getContext("2d");
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+                thumbEls[pageNum - 1] = buildThumb(pageNum - 1, canvas);
+                status.textContent = "Rendering page " + pageNum + " of " + pageCount + "…";
+              });
+            });
+          });
+        })(i);
+      }
+      return chain;
+    }).then(function () {
+      order = [];
+      for (var i = 0; i < pageCount; i++) order.push(i);
+      renderGrid();
+      status.textContent = "Ready. Arrange the pages, then save.";
+    }).catch(function (err) {
+      libBytes = null;
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+      status.textContent = "";
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  resetBtn.addEventListener("click", function () {
+    order = [];
+    for (var i = 0; i < pageCount; i++) order.push(i);
+    renderGrid();
+  });
+
+  saveBtn.addEventListener("click", function () {
+    if (!libBytes || order.length === 0) {
+      if (order.length === 0) showError("All pages have been deleted — reset the order to bring them back.");
+      return;
+    }
+    showError("");
+    saveBtn.disabled = true;
+    status.textContent = "Building your PDF…";
+    var PDFDocument = window.PDFLib.PDFDocument;
+    PDFDocument.load(libBytes).then(function (src) {
+      return PDFDocument.create().then(function (out) {
+        return out.copyPages(src, order.slice()).then(function (pages) {
+          pages.forEach(function (p) { out.addPage(p); });
+          return out.save();
+        });
+      });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-organized.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! " + order.length + " pages saved in the new order.";
+      saveBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Saving failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      saveBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

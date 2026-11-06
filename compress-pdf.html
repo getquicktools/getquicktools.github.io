@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compress PDF — Reduce PDF File Size Online Free | QuickTools</title>
+<meta name="description" content="Compress a PDF online for free by re-rendering pages as images at your chosen quality. Best for scanned and photo-heavy PDFs. 100% in your browser — never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Compress PDF</h1>
+  <p class="lead">Shrink a large PDF by re-rendering each page as an image at the quality you choose, then rebuilding the PDF from those images. You can see the original and new size before you download.</p>
+  <p class="privacy-note">🔒 Private by design: your PDF is compressed locally in your browser — it is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <div id="controls" style="display:none">
+      <p class="note" id="fileInfo"></p>
+      <label for="quality">Compression level</label>
+      <select id="quality">
+        <option value="high" selected>High quality — larger file (scale 2, JPEG 85%)</option>
+        <option value="medium">Medium — balanced (scale 1.5, JPEG 70%)</option>
+        <option value="low">Low quality — smallest file (scale 1, JPEG 50%)</option>
+      </select>
+      <div class="btn-row">
+        <button class="btn" id="compressBtn" type="button">🗜️ Compress &amp; download</button>
+      </div>
+      <div class="result-box" id="resultBox"></div>
+    </div>
+
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file. Its size and page count are shown.</li>
+      <li>Choose a compression level — Medium is a good balance for most scanned documents.</li>
+      <li>Click <strong>Compress &amp; download</strong> and wait while each page is re-rendered.</li>
+      <li>The new size is shown next to the original so you can see exactly how much was saved.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>How does this compressor work?</h3>
+    <p>Each page is rendered to an image in your browser, and a new PDF is built from those images. Because scanned and photo-heavy PDFs store large images, re-encoding the pages as right-sized JPEGs usually makes the file much smaller.</p>
+    <h3>Important: will the text in my PDF still be selectable?</h3>
+    <p>No. Pages are converted to images, so the text is no longer selectable or searchable in the compressed file, and links and form fields are lost. This tool is best for scanned or photo-heavy PDFs. If you need searchable text, this is not the right method.</p>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. Compression happens entirely in your browser using the pdf.js and pdf-lib libraries, so even confidential documents stay on your device.</p>
+    <h3>My compressed file came out bigger. Why?</h3>
+    <p>If the original PDF already contains efficient text and vector content, turning pages into images can make it larger — especially at the High setting. Try the Medium or Low level, or keep the original file for text-heavy documents.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="page-numbers-pdf.html">Page Numbers</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var fileInfo = document.getElementById("fileInfo");
+  var qualitySel = document.getElementById("quality");
+  var compressBtn = document.getElementById("compressBtn");
+  var resultBox = document.getElementById("resultBox");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var LEVELS = {
+    high: { scale: 2, jpeg: 0.85 },
+    medium: { scale: 1.5, jpeg: 0.7 },
+    low: { scale: 1, jpeg: 0.5 }
+  };
+
+  var pdfJsDoc = null;
+  var pageCount = 0;
+  var origSize = 0;
+  var baseName = "document";
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  }
+  function pdfLibMissing() { return typeof window.PDFLib === "undefined"; }
+  function pdfJsMissing() { return typeof window.pdfjsLib === "undefined"; }
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  if (pdfLibMissing() || pdfJsMissing()) {
+    var missing = [];
+    if (pdfLibMissing()) missing.push("pdf-lib");
+    if (pdfJsMissing()) missing.push("pdf.js");
+    showError("The PDF " + (missing.length > 1 ? "libraries" : "library") + " (" + missing.join(", ") + ") could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    resultBox.textContent = "";
+    pdfJsDoc = null;
+    controls.style.display = "none";
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (pdfLibMissing() || pdfJsMissing()) {
+      showError("A required PDF library is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    status.textContent = "Loading PDF…";
+    file.arrayBuffer().then(function (buf) {
+      return window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    }).then(function (pdf) {
+      pdfJsDoc = pdf;
+      pageCount = pdf.numPages;
+      origSize = file.size;
+      baseName = file.name.replace(/\.pdf$/i, "") || "document";
+      fileInfo.textContent = file.name + " — " + pageCount + (pageCount === 1 ? " page" : " pages") + ", " + fmtSize(origSize);
+      controls.style.display = "block";
+      status.textContent = "PDF loaded. Choose a level and compress.";
+    }).catch(function (err) {
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+      status.textContent = "";
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function canvasToJpegBytes(canvas, quality) {
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (blob) {
+        if (!blob) { reject(new Error("Could not encode a page image.")); return; }
+        blob.arrayBuffer().then(function (buf) { resolve(new Uint8Array(buf)); }, reject);
+      }, "image/jpeg", quality);
+    });
+  }
+
+  compressBtn.addEventListener("click", function () {
+    if (!pdfJsDoc) return;
+    var level = LEVELS[qualitySel.value] || LEVELS.medium;
+    showError("");
+    resultBox.textContent = "";
+    compressBtn.disabled = true;
+    var PDFDocument = window.PDFLib.PDFDocument;
+    PDFDocument.create().then(function (out) {
+      var chain = Promise.resolve();
+      for (var i = 1; i <= pageCount; i++) {
+        (function (pageNum) {
+          chain = chain.then(function () {
+            status.textContent = "Processing page " + pageNum + " of " + pageCount + "…";
+            return pdfJsDoc.getPage(pageNum).then(function (page) {
+              var ptViewport = page.getViewport({ scale: 1 });
+              var viewport = page.getViewport({ scale: level.scale });
+              var canvas = document.createElement("canvas");
+              canvas.width = Math.floor(viewport.width);
+              canvas.height = Math.floor(viewport.height);
+              var ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+                return canvasToJpegBytes(canvas, level.jpeg);
+              }).then(function (jpgBytes) {
+                return out.embedJpg(jpgBytes);
+              }).then(function (img) {
+                var newPage = out.addPage([ptViewport.width, ptViewport.height]);
+                newPage.drawImage(img, { x: 0, y: 0, width: ptViewport.width, height: ptViewport.height });
+              });
+            });
+          });
+        })(i);
+      }
+      return chain.then(function () { return out.save(); });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-compressed.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      var diff = origSize - bytes.length;
+      var pct = origSize > 0 ? Math.abs(diff / origSize * 100).toFixed(1) : "0";
+      resultBox.textContent = diff > 0
+        ? "✅ Compressed: " + fmtSize(origSize) + " → " + fmtSize(bytes.length) + " (saved " + fmtSize(diff) + ", " + pct + "% smaller)."
+        : "ℹ️ Result: " + fmtSize(origSize) + " → " + fmtSize(bytes.length) + ". The image version is not smaller for this file — this happens with text-heavy PDFs. Try a lower level or keep the original.";
+      status.textContent = "Done! Compressed PDF downloaded.";
+      compressBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Compression failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      compressBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

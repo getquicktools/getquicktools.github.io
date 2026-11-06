@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Page Numbers to PDF — Number Pages Online Free | QuickTools</title>
+<meta name="description" content="Add page numbers to a PDF online for free: Page X of Y and other formats, in the position and size you choose. Runs 100% in your browser — files are never uploaded.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">⚡ QuickTools</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="image-compressor.html">Image Compressor</a>
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="qr-code-generator.html">QR Generator</a>
+      <a href="password-generator.html">Password Generator</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container page">
+  <h1>Add Page Numbers to PDF</h1>
+  <p class="lead">Number every page of a PDF in seconds. Choose the position, the format — like "Page 3 of 12" — the starting number and the font size, then download.</p>
+  <p class="privacy-note">🔒 Private by design: page numbers are added locally in your browser — your PDF is never uploaded to any server.</p>
+
+  <div class="tool-panel">
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop a PDF file here, or click to choose a file</div>
+      <div>One PDF at a time</div>
+      <input type="file" id="fileInput" accept="application/pdf,.pdf">
+    </div>
+
+    <div id="controls" style="display:none">
+      <p class="note" id="fileInfo"></p>
+
+      <div class="two-col">
+        <div>
+          <label for="position">Position</label>
+          <select id="position">
+            <option value="bottom-center" selected>Bottom centre</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+            <option value="top-center">Top centre</option>
+          </select>
+        </div>
+        <div>
+          <label for="format">Format</label>
+          <select id="format">
+            <option value="pagexofy" selected>Page X of Y</option>
+            <option value="xslashy">X / Y</option>
+            <option value="x">X only</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div>
+          <label for="startAt">Start numbering at</label>
+          <input type="number" id="startAt" min="0" value="1">
+        </div>
+        <div>
+          <label for="fontSize">Font size (pt)</label>
+          <select id="fontSize">
+            <option value="9">9</option>
+            <option value="10" selected>10</option>
+            <option value="12">12</option>
+            <option value="14">14</option>
+            <option value="16">16</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="applyBtn" type="button">🔢 Add page numbers &amp; download</button>
+      </div>
+    </div>
+
+    <p class="note" id="status"></p>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <section class="section">
+    <h2>How to use</h2>
+    <ol>
+      <li>Drop your PDF into the box, or click it to select a file. The page count is shown.</li>
+      <li>Choose the position and number format, and set the starting number if your document doesn't begin at 1 (for example, after a cover page).</li>
+      <li>Pick a font size and click <strong>Add page numbers &amp; download</strong>.</li>
+    </ol>
+  </section>
+
+  <section class="section faq">
+    <h2>Frequently asked questions</h2>
+    <h3>Is my PDF uploaded to a server?</h3>
+    <p>No. The numbers are drawn onto the pages entirely in your browser using the pdf-lib JavaScript library, so even confidential documents stay on your device.</p>
+    <h3>What does "start numbering at" do?</h3>
+    <p>It sets the number printed on the first page. With a start of 1 the first page is "Page 1 of Y". Start at 0 if page 1 is a cover that should show 0, or at any other number if this file continues a larger document. The "of Y" total always counts every page in the file plus the offset you chose.</p>
+    <h3>Will the numbers cover my content?</h3>
+    <p>Numbers are placed 20–24 pt from the page edge, inside the margin area of typical documents. If your pages have no margins, move the position or check the result — the original file is never changed, so you can simply try again.</p>
+    <h3>Can I number a password-protected PDF?</h3>
+    <p>Encrypted or password-protected PDFs cannot be read by the browser library. Remove the password in your PDF viewer first, then add numbers.</p>
+  </section>
+
+  <section class="section">
+    <h2>More tools</h2>
+    <div class="more-tools">
+      <a href="merge-pdf.html">Merge PDF</a>
+      <a href="split-pdf.html">Split PDF</a>
+      <a href="rotate-pdf.html">Rotate PDF</a>
+      <a href="organize-pdf.html">Organize PDF</a>
+      <a href="jpg-to-pdf.html">JPG to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="watermark-pdf.html">Watermark PDF</a>
+      <a href="crop-pdf.html">Crop PDF</a>
+      <a href="sign-pdf.html">Sign PDF</a>
+      <a href="edit-pdf.html">Edit PDF</a>
+      <a href="pdf-to-text.html">PDF to Text</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="lock">All tools run 100% in your browser — your files never leave your device.</p>
+    <p>© <span id="year"></span> QuickTools. All rights reserved.</p>
+  </div>
+</footer>
+<script src="script.js"></script>
+<script>
+(function () {
+  "use strict";
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var controls = document.getElementById("controls");
+  var fileInfo = document.getElementById("fileInfo");
+  var positionSel = document.getElementById("position");
+  var formatSel = document.getElementById("format");
+  var startAtInput = document.getElementById("startAt");
+  var fontSizeSel = document.getElementById("fontSize");
+  var applyBtn = document.getElementById("applyBtn");
+  var status = document.getElementById("status");
+  var errorBox = document.getElementById("errorBox");
+
+  var pdfBytes = null;
+  var pageCount = 0;
+  var baseName = "document";
+
+  function showError(msg) { errorBox.textContent = msg || ""; }
+  function libMissing() { return typeof window.PDFLib === "undefined"; }
+
+  if (libMissing()) {
+    showError("The PDF library (pdf-lib) could not be loaded from the CDN. Check your internet connection and reload this page, then try again.");
+  }
+
+  function handleFile(file) {
+    showError("");
+    status.textContent = "";
+    if (!file || !(file.type === "application/pdf" || /\.pdf$/i.test(file.name))) {
+      showError("Please choose a PDF file.");
+      return;
+    }
+    if (libMissing()) {
+      showError("The PDF library (pdf-lib) is not loaded. Check your internet connection and reload this page, then try again.");
+      return;
+    }
+    file.arrayBuffer().then(function (buf) {
+      return window.PDFLib.PDFDocument.load(buf, { ignoreEncryption: false }).then(function (doc) {
+        pdfBytes = new Uint8Array(buf);
+        pageCount = doc.getPageCount();
+        baseName = file.name.replace(/\.pdf$/i, "") || "document";
+        fileInfo.textContent = file.name + " — " + pageCount + (pageCount === 1 ? " page" : " pages") + " (" + (file.size / 1024).toFixed(1) + " KB)";
+        controls.style.display = "block";
+        status.textContent = "PDF loaded. Choose the numbering style and apply it.";
+      });
+    }).catch(function (err) {
+      pdfBytes = null;
+      controls.style.display = "none";
+      showError("Could not read that PDF: " + (err && err.message ? err.message : "the file may be corrupted or password-protected."));
+    });
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+    fileInput.value = "";
+  });
+  dropzone.addEventListener("dragover", function (e) { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", function () { dropzone.classList.remove("dragover"); });
+  dropzone.addEventListener("drop", function (e) {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function labelFor(n, total, fmt) {
+    if (fmt === "pagexofy") return "Page " + n + " of " + total;
+    if (fmt === "xslashy") return n + " / " + total;
+    return "" + n;
+  }
+
+  applyBtn.addEventListener("click", function () {
+    if (!pdfBytes) return;
+    var startAt = parseInt(startAtInput.value, 10);
+    if (isNaN(startAt) || startAt < 0) startAt = 1;
+    showError("");
+    applyBtn.disabled = true;
+    status.textContent = "Adding page numbers…";
+    var PDFLib = window.PDFLib;
+    PDFLib.PDFDocument.load(pdfBytes).then(function (doc) {
+      return doc.embedFont(PDFLib.StandardFonts.Helvetica).then(function (font) {
+        var size = parseInt(fontSizeSel.value, 10);
+        var pos = positionSel.value;
+        var fmt = formatSel.value;
+        var color = PDFLib.rgb(0.25, 0.25, 0.25);
+        var total = startAt + pageCount - 1;
+        var margin = 30;
+        doc.getPages().forEach(function (page, idx) {
+          var dims = page.getSize();
+          var w = dims.width, h = dims.height;
+          var label = labelFor(startAt + idx, total, fmt);
+          var tw = font.widthOfTextAtSize(label, size);
+          var x, y;
+          if (pos === "top-center") { x = (w - tw) / 2; y = h - margin; }
+          else if (pos === "bottom-left") { x = margin; y = 20; }
+          else if (pos === "bottom-right") { x = w - margin - tw; y = 20; }
+          else { x = (w - tw) / 2; y = 20; }
+          page.drawText(label, { x: x, y: y, size: size, font: font, color: color });
+        });
+        return doc.save();
+      });
+    }).then(function (bytes) {
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = baseName + "-numbered.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      status.textContent = "Done! Page numbers added to all " + pageCount + (pageCount === 1 ? " page." : " pages.");
+      applyBtn.disabled = false;
+    }).catch(function (err) {
+      showError("Adding page numbers failed: " + (err && err.message ? err.message : "unknown error."));
+      status.textContent = "";
+      applyBtn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

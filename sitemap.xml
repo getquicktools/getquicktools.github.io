@@ -5,16 +5,64 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://saeed00120.github.io/quicktools/merge-pdf.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/split-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/rotate-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/organize-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/jpg-to-pdf.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/pdf-to-jpg.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/compress-pdf.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/watermark-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/page-numbers-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/crop-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/sign-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/edit-pdf.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://saeed00120.github.io/quicktools/pdf-to-text.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://saeed00120.github.io/quicktools/image-compressor.html</loc>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://saeed00120.github.io/quicktools/image-converter.html</loc>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://saeed00120.github.io/quicktools/merge-pdf.html</loc>
-    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://saeed00120.github.io/quicktools/word-counter.html</loc>

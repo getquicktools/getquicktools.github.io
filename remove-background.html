@@ -218,6 +218,7 @@ removeBtn.addEventListener("click", async () => {
     }
     progressText.textContent = "Processing — the first run also downloads the AI model (tens of MB)…";
     const blob = await removeBackgroundFn(currentFile, {
+      model: "isnet_quint8",
       progress: (key, current, total) => {
         if (total && total > 0) {
           const pct = Math.min(100, Math.round((current / total) * 100));
